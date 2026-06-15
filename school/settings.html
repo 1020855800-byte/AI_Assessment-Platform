@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>账号设置 - 机构管理</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+<script>const CURRENT_PAGE = 'settings';</script>
+<script src="../shared/sidebar.js"></script>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>账号设置</h1>
+    <!-- <p>管理您的账号密码与安全设置</p> -->
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- 左侧：个人信息卡 -->
+    <div class="lg:col-span-1">
+      <div class="card">
+        <div class="card-body text-center">
+          <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#1677ff,#4096ff);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-size:30px;font-weight:600;">
+            李
+          </div>
+          <h3 class="font-bold text-lg" style="color:#222;">李明</h3>
+          <p class="text-muted text-sm">华南理工大学 · 管理员</p>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0;">
+            <div class="text-sm" style="display:flex;justify-content:space-between;padding:4px 0;">
+              <span class="text-muted">上次登录</span>
+              <span style="color:#333;">2026-06-09 08:30:34</span>
+            </div>
+            <div class="text-sm" style="display:flex;justify-content:space-between;padding:4px 0;">
+              <span class="text-muted">账号状态</span>
+              <span class="text-success"><i class="fa-solid fa-circle" style="font-size:8px;"></i> 正常</span>
+            </div>
+            <div class="text-sm" style="display:flex;justify-content:space-between;padding:4px 0;">
+              <span class="text-muted">有效期至</span>
+              <span style="color:#333;">2026-06-12 23:59:59</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：修改密码 -->
+    <div class="lg:col-span-2">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-key text-primary mr-2"></i>修改密码</h3>
+          <span class="text-muted text-sm">密码规则：8-16位，必须包含字母与数字</span>
+        </div>
+        <div class="card-body" style="max-width:480px;">
+          <form onsubmit="handleChangePwd(event)">
+            <div class="form-group">
+              <label>旧密码 <span class="required">*</span></label>
+              <div style="position:relative;">
+                <input class="form-control" type="password" id="oldPwd" placeholder="请输入旧密码" style="padding-right:40px;">
+                <i class="fa-regular fa-eye-slash" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#bbb;cursor:pointer;" onclick="togglePwd('oldPwd', this)"></i>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>新密码 <span class="required">*</span></label>
+              <div style="position:relative;">
+                <input class="form-control" type="password" id="newPwd" placeholder="8-16位，字母与数字组合" style="padding-right:40px;">
+                <i class="fa-regular fa-eye-slash" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#bbb;cursor:pointer;" onclick="togglePwd('newPwd', this)"></i>
+              </div>
+              <div class="help-text">密码强度：<span class="badge badge-green ml-1" style="font-size:11px;">强</span></div>
+            </div>
+            <div class="form-group">
+              <label>确认新密码 <span class="required">*</span></label>
+              <div style="position:relative;">
+                <input class="form-control" type="password" id="confirmPwd" placeholder="再次输入新密码" style="padding-right:40px;">
+                <i class="fa-regular fa-eye-slash" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#bbb;cursor:pointer;" onclick="togglePwd('confirmPwd', this)"></i>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:24px;">
+              <button type="submit" class="btn btn-primary" style="height:40px;padding:0 28px;">
+                <i class="fa-solid fa-check"></i> 确认修改
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 安全设置 -->
+      <!-- <div class="card mt-6">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-shield-halved text-primary mr-2"></i>安全设置</h3>
+          <span class="text-muted text-sm">预留V2.0配置项</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0;">
+            <div>
+              <div class="font-medium" style="color:#333;">人脸识别验证</div>
+              <div class="text-xs text-muted mt-1">考试开始时对考生进行人脸识别验证</div>
+            </div>
+            <div class="toggle" id="toggleFace" onclick="toggleSwitch('toggleFace')"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0;">
+            <div>
+              <div class="font-medium" style="color:#333;">防切屏监控</div>
+              <div class="text-xs text-muted mt-1">考试过程中监测考生切屏行为，超过阈值自动记录</div>
+            </div>
+            <div class="toggle" id="toggleScreen" onclick="toggleSwitch('toggleScreen')"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
+            <div>
+              <div class="font-medium" style="color:#333;">心跳检测</div>
+              <div class="text-xs text-muted mt-1">考生端每隔5分钟发送心跳，检测异常断开</div>
+            </div>
+            <div class="toggle on" id="toggleHeart" onclick="toggleSwitch('toggleHeart')"></div>
+          </div>
+
+          <div class="mt-4 p-3 bg-warning-light rounded-lg">
+            <div class="flex items-start gap-2">
+              <i class="fa-solid fa-lightbulb text-warning mt-1"></i>
+              <div>
+                <p class="text-sm font-medium" style="color:#d46b08;">V2.0 预��配置项</p>
+                <p class="text-xs" style="color:#888;margin-top:2px;">人脸识别和防切屏功能将在 V2.0 版本中上线，当前为界面预留。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSwitch(id) {
+  document.getElementById(id).classList.toggle('on');
+}
+function togglePwd(inputId, icon) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'fa-regular fa-eye';
+  } else {
+    input.type = 'password';
+    icon.className = 'fa-regular fa-eye-slash';
+  }
+}
+function handleChangePwd(e) {
+  e.preventDefault();
+  const oldPwd = document.getElementById('oldPwd').value;
+  const newPwd = document.getElementById('newPwd').value;
+  const confirmPwd = document.getElementById('confirmPwd').value;
+
+  if (newPwd !== confirmPwd) {
+    alert('❌ 两次输入的新密码不一致，请重新输入');
+    return;
+  }
+  if (newPwd.length < 8 || newPwd.length > 16) {
+    alert('❌ 密码长度必须在8-16位之间');
+    return;
+  }
+  if (!/[a-zA-Z]/.test(newPwd) || !/[0-9]/.test(newPwd)) {
+    alert('❌ 密码必须包含字母与数字');
+    return;
+  }
+  alert('✅ 密码修改成功！\n\n请使用新密码重新登录。');
+}
+</script>
+<script>
+  const REQUIREMENT_TEXT = `机构管理 - 账号设置
+
+需求说明：
+暂无`;
+</script>
+<script src="../shared/requirement.js"></script>
+</body>
+</html>

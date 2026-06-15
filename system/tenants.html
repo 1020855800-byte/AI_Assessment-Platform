@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>租户管理 - 系统管理端</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+<script>const CURRENT_PAGE = 'tenants';</script>
+<script src="../shared/sidebar.js"></script>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>租户管理</h1>
+    <!-- <p>管理所有接入平台的学校/机构账号，支持创建、续费、重置密码等操作</p> -->
+  </div>
+
+  <!-- 警告条 -->
+  <div class="alert alert-warning mb-4">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <div><strong>3 所学校即将到期</strong> — 华南理工大学（3天后）、深圳大学（5天后）、广州大学（6天后）。请及时联系续费。</div>
+  </div>
+
+  <!-- 查询区 -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>账号</label>
+      <input type="text" placeholder="请输入账号" style="min-width:150px;">
+    </div>
+    <div class="filter-group">
+      <label>学校名称</label>
+      <input type="text" placeholder="请输入学校/机构名称" style="min-width:180px;">
+    </div>
+    <div class="filter-group">
+      <label>状态</label>
+      <select>
+        <option>全部</option>
+        <option>正常</option>
+        <option>即将过期</option>
+        <option>已过期</option>
+      </select>
+    </div>
+    <button class="btn btn-primary"><i class="fa-solid fa-search"></i> 查询</button>
+    <button class="btn btn-outline"><i class="fa-solid fa-rotate"></i> 重置</button>
+  </div>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <button class="btn btn-primary" onclick="openModal('createModal')">
+        <i class="fa-solid fa-plus"></i> 创建学校账号
+      </button>
+    </div>
+    <div class="toolbar-right">
+      <span class="text-muted text-sm">共 <strong>48</strong> 所学校</span>
+    </div>
+  </div>
+
+  <!-- 表格 -->
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox"></th>
+              <th>账号</th>
+              <th>学校全称</th>
+              <th>管理员</th>
+              <th>联系电话</th>
+              <th>有效期</th>
+              <th>考生数量(已使用/已购买)</th>
+              <th>状态</th>
+              <th>创建时间</th>
+              <th style="width:200px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">HNLG</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">华南理工大学</a></td>
+              <td>李明</td>
+              <td>138****6789</td>
+              <td>2026-01-01 ~ 2026-06-12</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-orange">即将过期</span></td>
+              <td>2026-01-01</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">ZS</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">中山大学</a></td>
+              <td>王芳</td>
+              <td>139****5678</td>
+              <td>2026-01-15 ~ 2027-06-09</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-green">正常</span></td>
+              <td>2026-01-15</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">SZ</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">深圳大学</a></td>
+              <td>张伟</td>
+              <td>136****2345</td>
+              <td>2026-02-01 ~ 2026-06-14</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-orange">即将过期</span></td>
+              <td>2026-02-01</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">GZ</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">广州大学</a></td>
+              <td>陈静</td>
+              <td>137****8901</td>
+              <td>2026-03-01 ~ 2026-06-15</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-orange">即将过期</span></td>
+              <td>2026-03-01</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">GDGY</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">广东工业大学</a></td>
+              <td>刘洋</td>
+              <td>158****3456</td>
+              <td>2026-04-01 ~ 2026-10-01</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-green">正常</span></td>
+              <td>2026-04-01</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">JN</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">暨南大学</a></td>
+              <td>赵强</td>
+              <td>159****6789</td>
+              <td>2026-05-01 ~ 2027-05-01</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-green">正常</span></td>
+              <td>2026-05-01</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">NFKJ</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">南方科技大学</a></td>
+              <td>孙丽</td>
+              <td>186****0123</td>
+              <td>2026-05-15 ~ 2026-11-15</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-green">正常</span></td>
+              <td>2026-05-15</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">GDJS</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">广东技术师范大学</a></td>
+              <td>周明</td>
+              <td>188****4567</td>
+              <td>2025-09-01 ~ 2026-03-01</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-red">已过期</span></td>
+              <td>2025-09-01</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">HN</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">华南师范大学</a></td>
+              <td>黄丽</td>
+              <td>135****7890</td>
+              <td>2026-01-10 ~ 2026-12-31</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-green">正常</span></td>
+              <td>2026-01-10</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><code class="text-primary">GZYY</code></td>
+              <td><a href="#" class="text-primary font-medium" onclick="openDrawer('detailDrawer');return false;">广州中医药大学</a></td>
+              <td>吴刚</td>
+              <td>137****9012</td>
+              <td>2026-02-15 ~ 2027-02-15</td>
+              <td>300/2000</td>
+              <td><span class="badge badge-green">正常</span></td>
+              <td>2026-02-15</td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+                  <button class="btn btn-text btn-sm" onclick="openEditModal(this)" title="编辑"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button class="btn btn-text btn-sm" onclick="openModal('resetPwdModal')" title="重置密码"><i class="fa-solid fa-key"></i> 重置</button>
+                  <button class="btn btn-text btn-sm" onclick="quickLogin()" title="快捷登录"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination" style="padding:16px 20px;">
+        <div class="pagination-info">显示 1-10 条，共 48 条</div>
+        <div class="pagination-controls">
+          <button class="page-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn">...</button>
+          <button class="page-btn">6</button>
+          <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 创建学校账号弹窗 ========== -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-plus-circle text-primary mr-2"></i>创建学校账号</h3>
+      <button class="modal-close" onclick="closeModal('createModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>学校/机构全称 <span class="required">*</span></label>
+          <input class="form-control" id="createSchoolName" placeholder="请输入学校全称（唯一）" oninput="autoGenerateAccount()">
+        </div>
+        <div class="form-group">
+          <label>账号 <span class="required">*</span></label>
+          <input class="form-control" id="createAccount" placeholder="学校全称缩写（自动生成，可修改）">
+          <div class="help-text">自动取学校全称中每个词的拼音首字母，可手动修改</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>管理员姓名 <span class="required">*</span></label>
+          <input class="form-control" placeholder="请输入管理员姓名">
+        </div>
+        <div class="form-group">
+          <label>联系电话 <span class="required">*</span></label>
+          <input class="form-control" placeholder="请输入管理员手机号">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>考生数量 <span class="required">*</span></label>
+          <input class="form-control" placeholder="请输入考生数量">
+        </div>
+        <div class="form-group">
+          <label>初始密码 <span class="required">*</span></label>
+          <div style="display:flex;gap:8px;">
+            <input class="form-control" placeholder="系统生成或自定义" value="Hanwen@2026" style="flex:1;">
+            <button class="btn btn-outline btn-sm"></i> 复制账号密码</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>有效开始日期 <span class="required">*</span></label>
+          <input class="form-control" type="date" value="2026-06-09">
+        </div>
+        <div class="form-group">
+          <label>有效结束日期 <span class="required">*</span></label>
+          <input class="form-control" type="date" value="2027-06-09">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('createModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmCreate()"><i class="fa-solid fa-check"></i> 创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 编辑学校信息弹窗 ========== -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-pen-to-square text-primary mr-2"></i>编辑学校信息</h3>
+      <button class="modal-close" onclick="closeModal('editModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-info mb-4">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><strong id="editSchoolNameDisplay">华南理工大学</strong> 账号还有36天到期</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>管理员姓名 <span class="required">*</span></label>
+          <input class="form-control" id="editAdminName" placeholder="请输入管理员姓名">
+        </div>
+        <div class="form-group">
+          <label>联系电话 <span class="required">*</span></label>
+          <input class="form-control" id="editPhone" placeholder="请输入管理员手机号">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>有效开始日期 <span class="required">*</span></label>
+          <input class="form-control" id="editStartDate" type="date">
+        </div>
+        <div class="form-group">
+          <label>有效结束日期 <span class="required">*</span></label>
+          <input class="form-control" id="editEndDate" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>考生总数量 <span class="required">*</span></label>
+          <input class="form-control" id="editStudentCount" placeholder="请输入考生总数量，不可低于已使用数量">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmEdit()"><i class="fa-solid fa-check"></i> 保存修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 重置密码弹窗 ========== -->
+<div class="modal-overlay" id="resetPwdModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-key text-danger mr-2"></i>重置密码 - 华南理工大学</h3>
+      <button class="modal-close" onclick="closeModal('resetPwdModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warning mb-4">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>重置后，新密码默认为联系人手机号！</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('resetPwdModal')">取消</button>
+      <button class="btn btn-danger" onclick="confirmResetPwd()"><i class="fa-solid fa-check"></i> 确认重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 详情抽屉 ========== -->
+<div class="drawer-overlay" id="detailDrawerOverlay" onclick="closeDrawer('detailDrawer')"></div>
+<div class="drawer" id="detailDrawer">
+  <div class="drawer-header">
+    <h3>学校详情</h3>
+    <button class="modal-close" onclick="closeDrawer('detailDrawer')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="bg-primary-light rounded-lg p-4 mb-4">
+      <div class="flex items-center gap-3">
+        <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#1677ff,#4096ff);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;">
+          <i class="fa-solid fa-building-columns"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-lg" style="color:#222;">华南理工大学</h4>
+          <span class="text-sm" style="color:#888;">ID: hnlgdx</span>
+        </div>
+      </div>
+    </div>
+
+    <h4 class="font-medium text-sm text-muted mb-3" style="text-transform:uppercase;letter-spacing:1px;">基本信息</h4>
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+      <div class="detail-row">
+        <span class="detail-label">学校全称</span>
+        <span class="detail-value">华南理工大学</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">管理员姓名</span>
+        <span class="detail-value">李明</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">联系电话</span>
+        <span class="detail-value">13811116789</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">创建时间</span>
+        <span class="detail-value">2026-01-01 09:00:00</span>
+      </div>
+    </div>
+
+    <h4 class="font-medium text-sm text-muted mb-3" style="text-transform:uppercase;letter-spacing:1px;">账号有效期</h4>
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+      <div class="detail-row">
+        <span class="detail-label">开始日期</span>
+        <span class="detail-value">2026-01-01</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">结束日期</span>
+        <span class="detail-value" style="color:#fa8c16;font-weight:500;">2026-06-12 <span class="badge badge-orange ml-2">即将过期</span></span>
+      </div>
+    </div>
+
+    <h4 class="font-medium text-sm text-muted mb-3" style="text-transform:uppercase;letter-spacing:1px;">统计信息</h4>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="bg-gray-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-primary">12</div>
+        <div class="text-xs text-muted mt-1">考试计划数</div>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-success">2,380</div>
+        <div class="text-xs text-muted mt-1">考生总数</div>
+      </div>
+    </div>
+
+    <!-- <h4 class="font-medium text-sm text-muted mb-3" style="text-transform:uppercase;letter-spacing:1px;">操作日志</h4>
+    <div class="bg-gray-50 rounded-lg p-4">
+      <div class="text-xs text-muted mb-2 pb-2 border-b border-gray-200">2026-06-08 16:42 · 管理员重置了密码</div>
+      <div class="text-xs text-muted mb-2 pb-2 border-b border-gray-200">2026-06-01 10:30 · 管理员登录了此学校后台</div>
+      <div class="text-xs text-muted">2026-01-01 09:00 · 管理员创建了此学校</div>
+    </div> -->
+  </div>
+  <div class="drawer-footer">
+    <!-- <button class="btn btn-outline" onclick="closeDrawer('detailDrawer')">关闭</button> -->
+    <!-- <button class="btn btn-primary" onclick="openModal('renewModal');closeDrawer('detailDrawer')"><i class="fa-solid fa-clock"></i> 续费</button> -->
+  </div>
+</div>
+
+<!-- 自定义 Modal/Drawer 函数 -->
+<script>
+let editingRow = null; // 当前正在编辑的行
+
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+function openDrawer(id) {
+  document.getElementById(id).classList.add('show');
+  document.getElementById(id + 'Overlay').classList.add('show');
+}
+function closeDrawer(id) {
+  document.getElementById(id).classList.remove('show');
+  document.getElementById(id + 'Overlay').classList.remove('show');
+}
+function confirmCreate() {
+  const name = document.getElementById('createSchoolName').value || '新创建的学校';
+  const account = document.getElementById('createAccount').value || '-';
+  closeModal('createModal');
+  alert('学校账号创建成功！\n\n账号: ' + account + '\n学校名称: ' + name + '\n初始密码: Hanwen@2026');
+}
+function autoGenerateAccount() {
+  const name = document.getElementById('createSchoolName').value.trim();
+  const accountField = document.getElementById('createAccount');
+  if (!name) { accountField.value = ''; return; }
+  const pinyinMap = {
+    '华':'H','南':'N','理':'L','工':'G','大':'D','学':'X','中':'Z','山':'S','深':'S','圳':'Z',
+    '州':'Z','广':'G','东':'D','业':'Y','暨':'J','江':'J','方':'F','技':'J','科':'K',
+    '师':'S','范':'F','术':'U','医':'Y','药':'Y','贸':'M','经':'J','海':'H','洋':'Y','农':'N',
+  };
+  let abbr = '';
+  for (const ch of name) {
+    if (pinyinMap[ch]) abbr += pinyinMap[ch];
+  }
+  if (abbr.length > 10) abbr = abbr.substring(0, 10);
+  accountField.value = abbr || name.substring(0, 4).toUpperCase();
+}
+function openEditModal(btn) {
+  // 找到当前按钮所在的行
+  const row = btn.closest('tr');
+  editingRow = row;
+  const cells = row.querySelectorAll('td');
+  const schoolName = cells[2].textContent.trim();
+  const adminName = cells[3].textContent.trim();
+  const phone = cells[4].textContent.trim();
+  const validity = cells[5].textContent.trim().split(' ~ ');
+  const startDate = validity[0];
+  const endDate = validity[1];
+
+  document.getElementById('editSchoolNameDisplay').textContent = schoolName;
+  document.getElementById('editAdminName').value = adminName;
+  document.getElementById('editPhone').value = phone;
+  document.getElementById('editStartDate').value = startDate;
+  document.getElementById('editEndDate').value = endDate;
+
+  openModal('editModal');
+}
+function confirmEdit() {
+  if (!editingRow) return;
+  const cells = editingRow.querySelectorAll('td');
+  const adminName = document.getElementById('editAdminName').value.trim();
+  const phone = document.getElementById('editPhone').value.trim();
+  const startDate = document.getElementById('editStartDate').value;
+  const endDate = document.getElementById('editEndDate').value;
+
+  if (!adminName || !phone || !startDate || !endDate) {
+    alert('请填写完整信息');
+    return;
+  }
+
+  cells[3].textContent = adminName;
+  cells[4].textContent = phone;
+  cells[5].textContent = startDate + ' ~ ' + endDate;
+
+  closeModal('editModal');
+  alert('修改保存成功！');
+}
+function confirmResetPwd() {
+  closeModal('resetPwdModal');
+  alert('密码已重置！\n新密码: NewPwd@2026\n\n（演示环境明文显示，生产环境将加密发送）');
+}
+function quickLogin() {
+  alert('快捷登录\n\n您将以该学校管理员身份\n免密登录至机构管理后台');
+}
+// 关闭弹窗（点击遮罩）
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('show');
+    }
+  });
+});
+</script>
+
+<script>
+  const REQUIREMENT_TEXT = `系统管理端 - 租户管理
+
+  需求说明：
+  1、*所学校即将到期：公告内最多展示3个学校/机构，文本过长横向滚动显示；
+  2、创建学校账号：账号根据全称拼音首字母进行缩写（创建时可修改），账号需要校验唯一性；联系电话：校验手机号；初始密码：默认为手机号；有效开始日期：默认为当天；
+  3、查看账号详情：点击学校名称进入详情弹窗。
+  4、登录：打开新链接快速登录到学校/机构管理后台（无需输入账号密码，直接以管理员身份登录）；
+  `;
+</script>
+<script src="../shared/requirement.js"></script>
+</body>
+</html>

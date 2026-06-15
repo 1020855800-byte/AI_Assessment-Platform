@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考试计划 - 机构管理</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* 自定义勾选框 */
+    .checkbox-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+    }
+    .checkbox-wrapper input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      width: 0;
+      height: 0;
+    }
+    .checkbox-wrapper .checkmark {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .checkbox-wrapper:hover .checkmark {
+      border-color: #6366f1;
+    }
+    .checkbox-wrapper input:checked + .checkmark {
+      background: #6366f1;
+      border-color: #6366f1;
+    }
+    .checkbox-wrapper input:checked + .checkmark::after {
+      content: '';
+      position: absolute;
+      left: 4.5px;
+      top: 1.5px;
+      width: 5px;
+      height: 9px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .btn-text[disabled] {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<script>const CURRENT_PAGE = 'exam-plans';</script>
+<script src="../shared/sidebar.js"></script>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>考试计划</h1>
+    <p>创建和管理所有考试计划，支持导入考生、监控考试过程、导出结果文件等</p>
+  </div>
+
+  <!-- 查询区 -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>计划名称</label>
+      <input type="text" placeholder="请输入计划名称" style="min-width:160px;">
+    </div>
+    <div class="filter-group">
+      <label>状态</label>
+        <select>
+          <option>全部</option>
+          <option>草稿</option>
+          <option>待考试</option>
+          <option>进行中</option>
+          <option>已结束</option>
+        </select>
+    </div>
+      <div class="filter-group">
+        <label>等级</label>
+        <select>
+          <option>全部</option>
+          <option>五级/初级工</option>
+          <option>四级/中级工</option>
+          <option>三级/高级工</option>
+          <option>二级/技师</option>
+          <option>一级/高级技师</option>
+        </select>
+      </div>
+    <button class="btn btn-primary"><i class="fa-solid fa-search"></i> 查询</button>
+    <button class="btn btn-outline"><i class="fa-solid fa-rotate"></i> 重置</button>
+  </div>
+
+  <!-- 按钮区 -->
+  <div class="toolbar" style="margin-top:12px;">
+    <div class="toolbar-left">
+      <button class="btn btn-primary" onclick="openModal('createExamModal')">
+        <i class="fa-solid fa-plus"></i> 创建考试计划
+      </button>
+      <button class="btn btn-success" onclick="batchPublish()">
+        <i class="fa-solid fa-paper-plane"></i> 发布
+      </button>
+      <span class="text-muted text-sm">共 <strong>6</strong> 个考试计划</span>
+    </div>
+  </div>
+
+  <!-- 表格 -->
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px;"><label class="checkbox-wrapper"><input type="checkbox"><span class="checkmark"></span></label></th>
+              <th>计划名称</th>
+              <th>考评项目</th>
+              <th>等级</th>
+              <th>考试时间</th>
+              <th>时长</th>
+              <th>考生数</th>
+              <th>创建时间</th>
+              <th>状态</th>
+              <th style="width:280px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><label class="checkbox-wrapper"><input type="checkbox"><span class="checkmark"></span></label></td>
+              <td><a href="exam-plan-detail.html" class="text-primary font-medium">2026年第一期标注师认证</a></td>
+              <td>人工智能训练师</td>
+              <td><span class="badge badge-blue">五级/初级工</span></td>
+              <td>2026-06-10 09:00 ~ 12:00</td>
+              <td>90 分钟</td>
+              <td>486</td>
+              <td>2026-05-20</td>
+              <td><span class="badge badge-orange">进行中</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" disabled onclick="editExamPlan(this)"><i class="fa-solid fa-pen"></i> 编辑</button>
+                <button class="btn btn-text btn-sm" onclick="window.location.href='exam-plan-detail.html'"><i class="fa-solid fa-eye"></i> 详情</button>
+                <button class="btn btn-text btn-sm" onclick="copyExamLink(this)"><i class="fa-solid fa-link"></i> 复制考试链接</button>
+                <button class="btn btn-text btn-sm danger" onclick="confirmFinish()"><i class="fa-solid fa-check"></i> 办结</button>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="checkbox-wrapper"><input type="checkbox"><span class="checkmark"></span></label></td>
+              <td><a href="exam-plan-detail.html" class="text-primary font-medium">文本标注技能考核</a></td>
+              <td>人工智能训练师</td>
+              <td><span class="badge badge-purple">三级/高级工</span></td>
+              <td>2026-06-08 14:00 ~ 16:30</td>
+              <td>120 分钟</td>
+              <td>370</td>
+              <td>2026-05-15</td>
+              <td><span class="badge badge-green">已结束</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" disabled onclick="editExamPlan(this)"><i class="fa-solid fa-pen"></i> 编辑</button>
+                <button class="btn btn-text btn-sm" onclick="window.location.href='exam-plan-detail.html'"><i class="fa-solid fa-eye"></i> 详情</button>
+                <button class="btn btn-text btn-sm" onclick="copyExamLink(this)"><i class="fa-solid fa-link"></i> 复制考试链接</button>
+                <button class="btn btn-text btn-sm danger" onclick="confirmFinish()"><i class="fa-solid fa-check"></i> 办结</button>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="checkbox-wrapper"><input type="checkbox"><span class="checkmark"></span></label></td>
+              <td><a href="exam-plan-detail.html" class="text-primary font-medium">语音标注专项测试</a></td>
+              <td>人工智能训练师</td>
+              <td><span class="badge badge-blue">五级/初级工</span></td>
+              <td>2026-06-20 09:00 ~ 10:30</td>
+              <td>60 分钟</td>
+              <td>520</td>
+              <td>2026-06-01</td>
+              <td><span class="badge badge-blue">待考试</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" onclick="editExamPlan(this)"><i class="fa-solid fa-pen"></i> 编辑</button>
+                <button class="btn btn-text btn-sm" onclick="window.location.href='exam-plan-detail.html'"><i class="fa-solid fa-eye"></i> 详情</button>
+                <button class="btn btn-text btn-sm" onclick="copyExamLink(this)"><i class="fa-solid fa-link"></i> 复制考试链接</button>
+                <button class="btn btn-text btn-sm danger" onclick="confirmFinish()"><i class="fa-solid fa-check"></i> 办结</button>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="checkbox-wrapper"><input type="checkbox"><span class="checkmark"></span></label></td>
+              <td><a href="exam-plan-detail.html" class="text-primary font-medium">视频标注一级/一级/高级技师技师认证</a></td>
+              <td>人工智能训练师</td>
+              <td><span class="badge badge-red">一级/高级技师</span></td>
+              <td>2026-06-25 14:00 ~ 16:00</td>
+              <td>120 分钟</td>
+              <td>280</td>
+              <td>2026-06-05</td>
+              <td><span class="badge badge-gray">草稿</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" onclick="editExamPlan(this)"><i class="fa-solid fa-pen"></i> 编辑</button>
+                <button class="btn btn-text btn-sm" onclick="window.location.href='exam-plan-detail.html'"><i class="fa-solid fa-eye"></i> 详情</button>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="checkbox-wrapper"><input type="checkbox"><span class="checkmark"></span></label></td>
+              <td><a href="exam-plan-detail.html" class="text-primary font-medium">6月综合评测</a></td>
+              <td>人工智能训练师</td>
+              <td><span class="badge badge-purple">三级/高级工</span></td>
+              <td>2026-06-12 09:00 ~ 11:00</td>
+              <td>120 分钟</td>
+              <td>420</td>
+              <td>2026-06-06</td>
+              <td><span class="badge badge-orange">进行中</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" disabled onclick="editExamPlan(this)"><i class="fa-solid fa-pen"></i> 编辑</button>
+                <button class="btn btn-text btn-sm" onclick="window.location.href='exam-plan-detail.html'"><i class="fa-solid fa-eye"></i> 详情</button>
+                <button class="btn btn-text btn-sm" onclick="copyExamLink(this)"><i class="fa-solid fa-link"></i> 复制考试链接</button>
+                <button class="btn btn-text btn-sm danger" onclick="confirmFinish()"><i class="fa-solid fa-check"></i> 办结</button>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="checkbox-wrapper"><input type="checkbox"><span class="checkmark"></span></label></td>
+              <td><a href="exam-plan-detail.html" class="text-primary font-medium">数据标注师定级考试</a></td>
+              <td>人工智能训练师</td>
+              <td><span class="badge badge-red">一级/高级技师</span></td>
+              <td>2026-06-28 09:00 ~ 11:30</td>
+              <td>150 分钟</td>
+              <td>304</td>
+              <td>2026-06-08</td>
+              <td><span class="badge badge-green">已结束</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" disabled onclick="editExamPlan(this)"><i class="fa-solid fa-pen"></i> 编辑</button>
+                <button class="btn btn-text btn-sm" onclick="window.location.href='exam-plan-detail.html'"><i class="fa-solid fa-eye"></i> 详情</button>
+                <button class="btn btn-text btn-sm" onclick="copyExamLink(this)"><i class="fa-solid fa-link"></i> 复制考试链接</button>
+                <button class="btn btn-text btn-sm danger" onclick="confirmFinish()"><i class="fa-solid fa-check"></i> 办结</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination" style="padding:16px 20px;">
+        <div class="pagination-info">默认显示10条/页</div>
+        <div class="pagination-controls">
+          <button class="page-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn" disabled><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 创建考试计划弹窗 ========== -->
+<div class="modal-overlay" id="createExamModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-plus-circle text-primary mr-2"></i>创建考试计划</h3>
+      <button class="modal-close" onclick="closeModal('createExamModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>计划名称 <span class="required">*</span></label>
+          <input class="form-control" placeholder="例如：2025年第一期标注师认证">
+        </div>
+        <div class="form-group">
+          <label>等级 <span class="required">*</span></label>
+          <select class="form-control">
+            <option>五级/初级工</option>
+            <option>四级/中级工</option>
+            <option>三级/高级工</option>
+            <option>二级/技师</option>
+            <option>一级/高级技师</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>考试开始时间 <span class="required">*</span></label>
+          <input class="form-control" type="datetime-local" value="2026-06-20T09:00">
+        </div>
+        <div class="form-group">
+          <label>考试结束时间 <span class="required">*</span></label>
+          <input class="form-control" type="datetime-local" value="2026-06-20T12:00">
+        </div>
+      </div>
+      <div class="form-group">
+          <label>考试时长（分钟）<span class="required">*</span></label>
+          <input class="form-control" type="number" min="1" placeholder="例如：90" value="90" disabled>
+      </div>
+      <div class="form-group">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+          <div class="toggle" id="toggleSelfReg" onclick="toggleSwitch('toggleSelfReg')"></div>
+          <span style="font-size:13px;color:#555;">允许考生自主创建项目</span>
+        </div>
+        <div class="help-text">开启后，考生可自主创建多个项目进行训练，建议关闭此开关！</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('createExamModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmCreateExam()"><i class="fa-solid fa-check"></i> 创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 编辑考试计划弹窗 ========== -->
+<div class="modal-overlay" id="editExamModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-pen text-primary mr-2"></i>编辑考试计划</h3>
+      <button class="modal-close" onclick="closeModal('editExamModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>计划名称 <span class="required">*</span></label>
+          <input class="form-control" id="editPlanName" placeholder="例如：2025年第一期标注师认证">
+        </div>
+        <div class="form-group">
+          <label>等级 <span class="required">*</span></label>
+          <select class="form-control" id="editGrade">
+            <option>五级/初级工</option>
+            <option>四级/中级工</option>
+            <option>三级/高级工</option>
+            <option>二级/技师</option>
+            <option>一级/高级技师</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>考试开始时间 <span class="required">*</span></label>
+          <input class="form-control" type="datetime-local" id="editStartTime">
+        </div>
+        <div class="form-group">
+          <label>考试结束时间 <span class="required">*</span></label>
+          <input class="form-control" type="datetime-local" id="editEndTime">
+        </div>
+        <div class="form-group">
+          <label>考试时长（分钟）<span class="required">*</span></label>
+          <input class="form-control" type="number" id="editDuration" min="1" placeholder="例如：90" value="90" disabled>
+      </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>考评项目 <span class="required">*</span></label>
+          <input class="form-control" id="editEvalItem" placeholder="例如：图像标注" disabled>
+        </div>
+      </div>
+      <div class="form-group">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+          <div class="toggle" id="toggleEditSelfReg" onclick="toggleSwitch('toggleEditSelfReg')"></div>
+          <span style="font-size:13px;color:#555;">允许考生自主创建项目</span>
+        </div>
+        <div class="help-text">开启后，考生可自主创建多个项目进行训练，建议关闭此开关！</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editExamModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmEditExam()"><i class="fa-solid fa-check"></i> 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 导入考生弹窗 ========== -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-upload text-primary mr-2"></i>导入考生 - 2026年第一期标注师认证</h3>
+      <button class="modal-close" onclick="closeModal('importModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-info mb-4">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>支持单个新增或批量导入。批量导入请先下载Excel模板填写后上传。</div>
+      </div>
+
+      <div class="steps">
+        <div class="step active">
+          <div class="step-number">1</div>
+          <div class="step-label">下载模板</div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-label">填写数据</div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-label">上传文件</div>
+        </div>
+      </div>
+
+      <div class="upload-zone mb-4" onclick="alert('选择Excel文件进行上传')">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <p><strong>点击上传</strong> 或拖拽文件到此处</p>
+        <p style="font-size:11px;color:#bbb;margin-top:4px;">支持 .xlsx, .xls 格式，不超过 5MB</p>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;" class="mb-4">
+        <a class="btn btn-outline btn-sm"><i class="fa-solid fa-download"></i> 下载模板</a>
+        <span class="text-muted text-sm">模板包含：姓名、身份证号、手机号</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>单个新增 <span style="font-weight:400;color:#888;">（手动添加考生）</span></label>
+          <input class="form-control" placeholder="姓名" style="margin-bottom:8px;">
+          <input class="form-control" placeholder="身份证号" style="margin-bottom:8px;">
+          <input class="form-control" placeholder="手机号">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+          <button class="btn btn-outline" style="width:100%;"><i class="fa-solid fa-user-plus"></i> 添加考生</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('importModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmImport()"><i class="fa-solid fa-check"></i> 确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 考试计划详情抽屉 ========== -->
+<div class="drawer-overlay" id="detailDrawerOverlay" onclick="closeDrawer('detailDrawer')"></div>
+<div class="drawer" id="detailDrawer">
+  <div class="drawer-header">
+    <h3><i class="fa-solid fa-file-lines text-primary mr-2"></i>考试计划详情</h3>
+    <button class="modal-close" onclick="closeDrawer('detailDrawer')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body">
+    <!-- 考试状态卡片 -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm text-muted">考试状态</span>
+        <span class="badge badge-orange" style="font-size:14px;padding:4px 16px;" id="drawerStatusBadge">进行中</span>
+      </div>
+      <div class="flex items-center gap-2 text-sm" style="color:#888;">
+        <span>已完成 <strong id="drawerProgressPct" style="color:#52c41a;">68%</strong></span>
+        <span class="mx-1">|</span>
+        <span><strong id="drawerSubmittedCount">386</strong>/<strong id="drawerTotalCount">486</strong> 考生已交卷</span>
+      </div>
+      <!-- 进度条 -->
+      <div class="mt-3" style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+        <div id="drawerProgressBar" style="width:68%;height:100%;background:linear-gradient(90deg,#52c41a,#73d13d);border-radius:3px;transition:width 0.3s;"></div>
+      </div>
+    </div>
+
+    <!-- 基本信息 -->
+    <h4 class="font-medium text-sm text-muted mb-3" style="text-transform:uppercase;letter-spacing:1px;">基本信息</h4>
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+      <div class="detail-row">
+        <span class="detail-label">计划名称</span>
+        <span class="detail-value font-medium" id="drawerPlanName">2026年第一期标注师认证</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">考评项目</span>
+        <span class="detail-value" id="drawerEvalItem">人工智能训练师</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">等级</span>
+        <span class="detail-value" id="drawerGrade"><span class="badge badge-blue">五级/初级工</span></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">自主创建</span>
+        <span class="detail-value" id="drawerSelfCreate"><span class="badge badge-gray">关闭</span></span>
+      </div>
+    </div>
+
+    <!-- 考试安排 -->
+    <h4 class="font-medium text-sm text-muted mb-3" style="text-transform:uppercase;letter-spacing:1px;">考试安排</h4>
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+      <div class="detail-row">
+        <span class="detail-label">考试时长</span>
+        <span class="detail-value" id="drawerDuration">90 分钟</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">考试时间</span>
+        <span class="detail-value" id="drawerExamTime">2026-06-10 09:00 ~ 12:00</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">考生总数</span>
+        <span class="detail-value" id="drawerStudentTotal">486 人</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">已交卷</span>
+        <span class="detail-value" id="drawerSubmitted" style="color:#52c41a;">386 人</span>
+      </div>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="p-4 bg-orange-50 rounded-lg">
+      <div class="flex items-start gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-warning mt-1"></i>
+        <div>
+          <p class="text-sm font-medium" style="color:#d46b08;" id="drawerWarningTitle">考试进行中，操作须知</p>
+          <p class="text-xs" style="color:#888;margin-top:2px;" id="drawerWarningDesc">发布后不允许修改考试时间段及时长。办结后将禁止所有考生提交。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-outline" onclick="closeDrawer('detailDrawer')">关闭</button>
+    <button class="btn btn-primary" onclick="window.location.href='exam-plan-detail.html'"><i class="fa-solid fa-eye"></i> 查看完整详情</button>
+  </div>
+</div>
+
+<!-- ========== 办结确认弹窗 ========== -->
+<div class="modal-overlay" id="finishModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-triangle-exclamation text-danger mr-2"></i>确认办结</h3>
+      <button class="modal-close" onclick="closeModal('finishModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body text-center">
+      <div style="font-size:48px;color:#f5222d;margin-bottom:12px;">
+        <i class="fa-solid fa-circle-exclamation"></i>
+      </div>
+      <p class="font-medium" style="color:#222;font-size:15px;margin-bottom:8px;">确认办结此考试计划？</p>
+      <p style="color:#888;font-size:13px;">办结后所有作答中的学生将被强制收卷</p>
+      <p style="color:#f5222d;font-size:12px;margin-top:8px;font-weight:500;">此操作不可撤销！</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-outline" onclick="closeModal('finishModal')">取消</button>
+      <button class="btn btn-danger" onclick="doFinish()"><i class="fa-solid fa-check"></i> 确认办结</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 发布确认弹窗 ========== -->
+<div class="modal-overlay" id="publishModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-paper-plane text-primary mr-2"></i>发布考试计划</h3>
+      <button class="modal-close" onclick="closeModal('publishModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warning mb-3">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>考试正式开始后，考试时间段及时长将不可修改，请确认信息无误！</div>
+      </div>
+      <div style="background:#f9f9f9;border-radius:8px;padding:12px;">
+        <div class="detail-row">
+          <span class="detail-label">计划名称</span>
+          <span class="detail-value font-medium">语音标注专项测试</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">考试时间</span>
+          <span class="detail-value">2026-06-20 09:00 ~ 10:30</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">考试时长</span>
+          <span class="detail-value">60 分钟</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('publishModal')">取消</button>
+      <button class="btn btn-primary" onclick="doPublish()"><i class="fa-solid fa-paper-plane"></i> 确认发布</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+function toggleSwitch(id) {
+  document.getElementById(id).classList.toggle('on');
+}
+function confirmCreateExam() {
+  closeModal('createExamModal');
+  alert('✅ 考试计划创建成功！\n\n状态：草稿\n请导入考生后发布考试计划。');
+}
+
+// 抽屉控制
+function openDrawer(id) {
+  document.getElementById(id).classList.add('show');
+  document.getElementById(id + 'Overlay').classList.add('show');
+}
+function closeDrawer(id) {
+  document.getElementById(id).classList.remove('show');
+  document.getElementById(id + 'Overlay').classList.remove('show');
+}
+
+function openDetailDrawer(btn) {
+  var row = btn.closest('tr');
+  var cells = row.querySelectorAll('td');
+
+  // 提取表格行数据
+  var planName = cells[1].textContent.trim();
+  var evalItem = cells[2].textContent.trim();
+  var gradeHtml = cells[3].innerHTML.trim();
+  var examTime = cells[4].textContent.trim();
+  var duration = cells[5].textContent.trim();
+  var studentCount = cells[6].textContent.trim();
+  var createTime = cells[7].textContent.trim();
+  var statusEl = cells[8].querySelector('.badge');
+  var status = statusEl ? statusEl.textContent.trim() : '';
+  var statusClass = statusEl ? statusEl.className : 'badge badge-gray';
+
+  // 填充基本信息
+  document.getElementById('drawerPlanName').textContent = planName;
+  document.getElementById('drawerEvalItem').textContent = evalItem;
+  document.getElementById('drawerGrade').innerHTML = gradeHtml;
+  document.getElementById('drawerDuration').textContent = duration;
+  document.getElementById('drawerExamTime').textContent = examTime;
+  document.getElementById('drawerStudentTotal').textContent = studentCount + ' 人';
+
+  // 设置状态标签
+  var statusBadge = document.getElementById('drawerStatusBadge');
+  statusBadge.textContent = status;
+  statusBadge.className = statusClass;
+  statusBadge.style.fontSize = '14px';
+  statusBadge.style.padding = '4px 16px';
+
+  // 根据状态模拟进度数据
+  var submitted = '0';
+  var total = studentCount;
+  var pct = '0%';
+  if (status === '进行中') {
+    submitted = Math.floor(parseInt(total) * 0.68).toString();
+    pct = '68%';
+  } else if (status === '已结束') {
+    submitted = total;
+    pct = '100%';
+  } else if (status === '待考试') {
+    submitted = '0';
+    pct = '0%';
+  }
+
+  document.getElementById('drawerSubmittedCount').textContent = submitted;
+  document.getElementById('drawerTotalCount').textContent = total;
+  document.getElementById('drawerSubmitted').textContent = submitted + ' 人';
+  document.getElementById('drawerProgressPct').textContent = pct;
+  document.getElementById('drawerProgressBar').style.width = pct;
+
+  // 根据状态更新提示信息
+  var warningTitle = document.getElementById('drawerWarningTitle');
+  var warningDesc = document.getElementById('drawerWarningDesc');
+  if (status === '进行中') {
+    warningTitle.textContent = '考试进行中，操作须知';
+    warningDesc.textContent = '发布后不允许修改考试时间段及时长。办结后将禁止所有考生提交。';
+  } else if (status === '已结束') {
+    warningTitle.textContent = '考试已结束';
+    warningDesc.textContent = '所有考生作答已提交。可下载完整考试结果文件。';
+  } else if (status === '待考试') {
+    warningTitle.textContent = '考试待开始';
+    warningDesc.textContent = '请确保考生已导入，考试开始后将自动开启作答通道。';
+  } else if (status === '草稿') {
+    warningTitle.textContent = '草稿状态';
+    warningDesc.textContent = '请完善考试信息并导入考生后发布。发布前所有信息均可修改。';
+  }
+
+  openDrawer('detailDrawer');
+}
+
+// 编辑考试计划
+function editExamPlan(btn) {
+  var row = btn.closest('tr');
+  var cells = row.querySelectorAll('td');
+  // 计划名称
+  var planName = cells[1].textContent.trim();
+  // 等级
+  var gradeEl = cells[3].querySelector('.badge');
+  var grade = gradeEl ? gradeEl.textContent.trim() : '';
+  // 考试时间
+  var timeRange = cells[4].textContent.trim();
+  var times = timeRange.split(' ~ ');
+  // 时长
+  var duration = cells[5].textContent.trim().replace(' 分钟', '');
+  // 考评项目
+  var evalItem = cells[2].textContent.trim();
+
+  document.getElementById('editPlanName').value = planName;
+  document.getElementById('editGrade').value = grade;
+  document.getElementById('editDuration').value = duration;
+  document.getElementById('editEvalItem').value = evalItem;
+
+  if (times.length === 2) {
+    document.getElementById('editStartTime').value = times[0];
+    document.getElementById('editEndTime').value = times[1];
+  }
+
+  openModal('editExamModal');
+}
+
+function confirmEditExam() {
+  closeModal('editExamModal');
+  alert('✅ 考试计划已保存！');
+}
+
+function confirmImport() {
+  closeModal('importModal');
+  alert('✅ 导入成功！\n\n共导入 486 名考生\n跳过重复 0 条');
+}
+function batchPublish() {
+  openModal('publishModal');
+}
+function doPublish() {
+  closeModal('publishModal');
+  alert('✅ 考试计划已发布！\n\n状态变更为「待考试」\n考生端可见该考试计划。');
+}
+function confirmFinish() {
+  openModal('finishModal');
+}
+function doFinish() {
+  closeModal('finishModal');
+  alert('✅ 考试计划已办结！\n\n状态变更为「已结束」\n考生已无法提交，可下载完整结果。');
+}
+// 复制考试链接
+function copyExamLink(btn) {
+  var row = btn.closest('tr');
+  var cells = row.querySelectorAll('td');
+  var planName = cells[1].textContent.trim();
+  var link = window.location.origin + '/exam/exam.html?plan=' + encodeURIComponent(planName);
+
+  // 使用 Clipboard API 复制
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(function() {
+      alert('✅ 考试链接已复制成功！\n\n' + link);
+    }).catch(function() {
+      fallbackCopy(link);
+    });
+  } else {
+    fallbackCopy(link);
+  }
+}
+function fallbackCopy(text) {
+  var textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+  alert('✅ 考试链接已复制成功！\n\n' + text);
+}
+// 遮罩关闭
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+</script>
+<script>
+  const REQUIREMENT_TEXT = `机构管理 - 考试计划
+
+需求说明：
+1、创建考试计划：账号需在有效期内才能创建；考试时长根据考试开始、结束时间自动计算(不支持修改)；
+2、计划创建后，默认为草稿状态。草稿、待考试状态可对计划进行编辑；
+3、详情：点击计划名称或详情按钮，进入详情二级页面;
+4、发布：勾选计划进行发布，仅草稿状态数据可以操作。
+`;
+</script>
+<script src="../shared/requirement.js"></script>
+</body>
+</html>

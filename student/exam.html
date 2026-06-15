@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>翰闻数据标注实训平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../shared/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== 顶部导航栏 ===== */
+        .header {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: #fff;
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+        }
+
+        .header .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgb(255, 255, 255);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .header .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .header .user-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .header .user-area .user-name {
+            opacity: 0.95;
+        }
+
+        .header .user-area .user-id {
+            opacity: 0.7;
+            font-size: 12px;
+        }
+
+        .header .user-area .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .header .user-area .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* ===== 主内容区域 ===== */
+        .main-container {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 28px 40px;
+        }
+
+        /* 标题行 */
+        .page-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .page-title-row h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .page-title-row .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1557b0;
+        }
+
+        .btn-primary .icon {
+            margin-right: 4px;
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: #1a73e8;
+            border: 1px solid #1a73e8;
+        }
+
+        .btn-outline:hover {
+            background: #e8f0fe;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: #fff;
+        }
+
+        .btn-warning:hover {
+            background: #e68900;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-sm {
+            padding: 4px 14px;
+            font-size: 13px;
+        }
+
+        /* ===== 项目卡片列表 ===== */
+        .project-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            transition: box-shadow 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+            transform: translateY(-2px);
+        }
+
+        .project-card .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .project-card .card-header .project-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .project-card .card-header .project-badge {
+            font-size: 11px;
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .project-card .card-desc {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 8px;
+            line-height: 1.5;
+            min-height: 20px;
+        }
+
+        .project-card .card-desc .garbled {
+            color: #bbb;
+            font-size: 12px;
+        }
+
+        .project-card .card-date {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 16px;
+        }
+
+        .project-card .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .project-card .card-actions .btn-outline-sm {
+            background: transparent;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+            padding: 4px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .project-card .card-actions .btn-outline-sm:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+        }
+
+        .project-card .card-actions .btn-outline-danger-sm {
+            background: transparent;
+            color: #f44336;
+            border: 1px solid #dadce0;
+            padding: 4px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .project-card .card-actions .btn-outline-danger-sm:hover {
+            background: #fdecea;
+            border-color: #f44336;
+        }
+
+        .project-icon-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ===== 底部版权 ===== */
+        .footer {
+            text-align: center;
+            padding: 20px 40px;
+            font-size: 12px;
+            color: #bbb;
+            border-top: 1px solid #e8e8e8;
+            background: #fff;
+            flex-shrink: 0;
+        }
+
+        /* ===== 响应式 ===== */
+        /* ===== 模态弹窗 ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 12px;
+            width: 560px;
+            max-width: 92vw;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            animation: modalIn 0.2s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(-30px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px 0;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .modal-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #999;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-header .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 20px 24px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-tip {
+            background: #e8f0fe;
+            color: #1a73e8;
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .modal-tip i {
+            margin-right: 6px;
+        }
+
+        /* 上传区域 */
+        .upload-zone {
+            border: 2px dashed #d0d5dd;
+            border-radius: 10px;
+            padding: 36px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: #fafbfc;
+            position: relative;
+        }
+
+        .upload-zone:hover {
+            border-color: #1a73e8;
+            background: #f0f6ff;
+        }
+
+        .upload-zone.dragover {
+            border-color: #1a73e8;
+            background: #e8f0fe;
+            transform: scale(1.01);
+        }
+
+        .upload-zone .upload-icon {
+            font-size: 40px;
+            color: #1a73e8;
+            margin-bottom: 12px;
+        }
+
+        .upload-zone .upload-text {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .upload-zone .upload-hint {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 6px;
+        }
+
+        .upload-zone input[type="file"] {
+            display: none;
+        }
+
+        /* 已上传文件列表 */
+        .uploaded-section {
+            margin-top: 20px;
+        }
+
+        .uploaded-section .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .uploaded-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .uploaded-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: #f9f9fb;
+            transition: background 0.2s;
+        }
+
+        .uploaded-list li:hover {
+            background: #f0f2f5;
+        }
+
+        .uploaded-list li .file-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .uploaded-list li .file-info .file-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .uploaded-list li .file-info .file-time {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .uploaded-list li .file-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        .uploaded-list li .file-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .uploaded-list li .file-actions .btn-view {
+            color: #1a73e8;
+        }
+
+        .uploaded-list li .file-actions .btn-view:hover {
+            background: #e8f0fe;
+        }
+
+        .uploaded-list li .file-actions .btn-delete {
+            color: #f44336;
+        }
+
+        .uploaded-list li .file-actions .btn-delete:hover {
+            background: #fdecea;
+        }
+
+        .empty-upload-hint {
+            text-align: center;
+            color: #ccc;
+            font-size: 13px;
+            padding: 14px 0;
+        }
+
+        /* 单记录卡片 */
+        .single-record-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 14px 16px;
+            background: #f9f9fb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .single-record-card .record-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .single-record-card .record-info .record-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .single-record-card .record-info .record-meta {
+            font-size: 12px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .single-record-card .record-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .single-record-card .record-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .single-record-card .record-actions .btn-view {
+            color: #1a73e8;
+            border: 1px solid #d0d5dd;
+        }
+
+        .single-record-card .record-actions .btn-view:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+        }
+
+        .single-record-card .record-actions .btn-reupload {
+            color: #f44336;
+            border: 1px solid #d0d5dd;
+        }
+
+        .single-record-card .record-actions .btn-reupload:hover {
+            background: #fdecea;
+            border-color: #f44336;
+        }
+
+        .modal-footer {
+            padding: 0 24px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-footer .btn {
+            min-width: 80px;
+        }
+
+        .modal-footer .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            background: #bbb;
+        }
+
+        .modal-footer .btn.btn-primary:disabled {
+            background: #90b4e0;
+        }
+
+        .submit-confirm-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 18px;
+            padding: 12px 16px;
+            background: #fff3e0;
+            border-radius: 8px;
+            border: 1px solid #ffe0b2;
+        }
+
+        .submit-confirm-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #ff9800;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .submit-confirm-row label {
+            font-size: 13px;
+            color: #e65100;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1.4;
+        }
+
+        .submit-warning-icon {
+            font-size: 48px;
+            color: #ff9800;
+            margin-bottom: 8px;
+        }
+
+        .submit-warning-text {
+            text-align: center;
+            font-size: 15px;
+            color: #333;
+            line-height: 1.7;
+            padding: 4px 0 8px;
+        }
+
+        @media (max-width: 600px) {
+            .modal-box {
+                width: 100vw;
+                max-width: 100vw;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 20px;
+            }
+            .main-container {
+                padding: 20px;
+            }
+            .page-title-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .page-title-row .action-buttons {
+                flex-wrap: wrap;
+            }
+            .project-list {
+                grid-template-columns: 1fr;
+            }
+            .header .user-area .user-id {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header .logo-text {
+                font-size: 16px;
+            }
+            .header .user-area {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 顶部导航栏 ===== -->
+    <header class="header">
+        <div class="logo-area">
+            <!-- <div class="logo-icon">翰</div> -->
+            <img src="../image/logo.png" alt="Logo" class="logo-icon" />
+            <span class="logo-text">翰闻数据标注实训平台</span>
+        </div>
+        <div class="user-area">
+            <span class="user-name">张三</span>
+            <span class="user-id">420001199001011111</span>
+            <button class="logout-btn">退出登录</button>
+        </div>
+    </header>
+
+    <!-- ===== 主内容区域 ===== -->
+    <div class="main-container">
+
+        <!-- 标题行 -->
+        <div class="page-title-row">
+            <h1>项目列表</h1>
+            <div class="action-buttons">
+                <button class="btn btn-primary">
+                    <span class="icon">+</span> 创建项目
+                </button>
+                <button class="btn btn-outline" onclick="openUploadModal()">提交结果文件</button>
+                <button class="btn btn-warning" onclick="openSubmitModal()">交卷</button>
+            </div>
+        </div>
+
+        <!-- 项目卡片列表 -->
+        <div class="project-list">
+
+            <!-- 卡片 1 -->
+            <div class="project-card">
+                <div class="card-header">
+                    <span class="project-name">0608测试001</span>
+                    <span class="project-badge">123</span>
+                </div>
+                <div class="card-desc">
+                    <span class="garbled">发大V发的VS恢复和未付</span>
+                </div>
+                <div class="card-desc">无描述</div>
+                <div class="card-date">创建于 2026-06-08 07:47</div>
+                <div class="card-actions">
+                    <button class="btn-outline-sm">⊙ 查看</button>
+                    <button class="btn-outline-danger-sm">删除</button>
+                </div>
+            </div>
+
+            <!-- 卡片 2 -->
+            <div class="project-card">
+                <div class="card-header">
+                    <span class="project-name">0608测试001</span>
+                    <span class="project-badge">123</span>
+                </div>
+                <div class="card-desc">
+                    <span class="garbled">发大V发的VS恢复和未付</span>
+                </div>
+                <div class="card-desc">无描述</div>
+                <div class="card-date">创建于 2026-06-08 06:33</div>
+                <div class="card-actions">
+                    <button class="btn-outline-sm">⊙ 查看</button>
+                    <button class="btn-outline-danger-sm">删除</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== 提交结果文件弹窗 ===== -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2><i class="fas fa-upload" style="margin-right:6px;color:#1a73e8;"></i>提交结果文件</h2>
+                <button class="close-btn" onclick="closeUploadModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-tip">
+                    <i class="fas fa-info-circle"></i>
+                    请按照考试文件要求，上传桌面结果文件夹。
+                </div>
+
+                <!-- 上传区域 -->
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <div class="upload-text">点击选择文件夹，或拖拽文件夹至此区域</div>
+                    <div class="upload-hint">支持上传整个结果文件夹</div>
+                    <input type="file" id="fileInput" webkitdirectory multiple />
+                </div>
+
+                <!-- 单文件已上传信息（上传后显示） -->
+                <div class="uploaded-section" id="uploadedSection" style="display:none;">
+                    <div class="section-title">
+                        <i class="fas fa-folder-open" style="color:#1a73e8;"></i> 已上传文件夹
+                    </div>
+                    <div class="single-record-card" id="singleRecordCard"></div>
+                </div>
+
+                <!-- 已上传文件列表 -->
+                <div class="uploaded-section" id="uploadedSection" style="display:none;">
+                    <div class="section-title">
+                        <i class="fas fa-history" style="color:#1a73e8;"></i> 已上传记录
+                    </div>
+                    <ul class="uploaded-list" id="uploadedList"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeUploadModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmUpload()">确认提交</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 交卷确认弹窗 ===== -->
+    <div class="modal-overlay" id="submitModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2><i class="fas fa-paper-plane" style="margin-right:6px;color:#ff9800;"></i>交卷确认</h2>
+                <button class="close-btn" onclick="closeSubmitModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align:center;">
+                    <div class="submit-warning-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="submit-warning-text">
+                        系统检测到当前暂未提交考试结果文件，交卷后将无法再进行考试操作，请确认！
+                    </div>
+                </div>
+                <div class="submit-confirm-row">
+                    <input type="checkbox" id="submitConfirmCheck" onchange="toggleSubmitBtn()" />
+                    <label for="submitConfirmCheck">我已确认，确实要交卷</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeSubmitModal()">取消</button>
+                <button class="btn btn-warning" id="submitConfirmBtn" disabled onclick="doSubmit()">确认交卷</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 版权信息 ===== -->
+    <footer class="footer">
+        Copyright &copy; 2026 by 武汉翰闻教育技术有限公司. All Rights Reserved.
+    </footer>
+     <script>
+    const REQUIREMENT_TEXT = `考生端 - 考试页面
+
+    需求说明：
+    1、登录判断：考生账号密码校验、考试时间段校验、考生考试状态校验。考生登录后，页面右上角显示考生姓名与身份证号、考试剩余时间（分钟）、退出按钮。
+    2、根据计划管理员设置的是否允许考生创建项目，关联展示创建项目按钮。
+    3、新增提交结果文件，允许考生直接上传结果文件夹，可多次上传，记录最后一次上传时间和文件。
+    4、新增交卷按钮，点击交卷后，系统提示提交成功，并自动退出登录。若考生再次登录，需提示本场考试已交卷。
+    5、若考生退出登录后，只要考生状态未结束，可以继续进行考试。
+    6、注意：考生强制收卷时间不受考试计划的结束时间控制，例如考试时间段是8-9点，考生在8：20分进来，考试时间为60分钟，则系统对该考生的强制收卷时间应为9：20.
+    `;
+    </script>
+
+    <script>
+    // ===== 提交结果文件弹窗逻辑（单文件模式） =====
+    let uploadRecord = loadRecord();
+
+    function loadRecord() {
+        try {
+            const data = localStorage.getItem('exam_upload_record');
+            return data ? JSON.parse(data) : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function saveRecord() {
+        if (uploadRecord) {
+            localStorage.setItem('exam_upload_record', JSON.stringify(uploadRecord));
+        } else {
+            localStorage.removeItem('exam_upload_record');
+        }
+    }
+
+    function formatTime(date) {
+        const d = new Date(date);
+        const pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    // 打开弹窗
+    function openUploadModal() {
+        document.getElementById('uploadModal').classList.add('active');
+        renderSingleRecord();
+    }
+
+    // 关闭弹窗
+    function closeUploadModal() {
+        document.getElementById('uploadModal').classList.remove('active');
+        document.getElementById('fileInput').value = '';
+        document.getElementById('uploadZone').classList.remove('dragover');
+    }
+
+    // 点击弹窗遮罩层关闭
+    document.getElementById('uploadModal').addEventListener('click', function(e) {
+        if (e.target === this) closeUploadModal();
+    });
+
+    // ===== 上传文件处理 =====
+    const fileInput = document.getElementById('fileInput');
+    const uploadZone = document.getElementById('uploadZone');
+
+    // 点击上传区域触发文件选择
+    uploadZone.addEventListener('click', function(e) {
+        if (e.target.tagName !== 'INPUT') {
+            fileInput.click();
+        }
+    });
+
+    // 拖拽上传
+    uploadZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFiles(files);
+        }
+    });
+
+    // 文件选择回调
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            handleFiles(this.files);
+        }
+    });
+
+    function handleFiles(files) {
+        const folderName = getFolderName(files);
+        const fileNames = Array.from(files).map(f => f.webkitRelativePath || f.name);
+        const now = new Date().toISOString();
+
+        uploadRecord = {
+            id: Date.now(),
+            folderName: folderName,
+            files: fileNames,
+            fileCount: files.length,
+            uploadTime: now,
+            uploadTimeStr: formatTime(now)
+        };
+
+        saveRecord();
+        renderSingleRecord();
+
+        // 重置 input 以便再次选择相同文件夹
+        fileInput.value = '';
+    }
+
+    function getFolderName(files) {
+        for (const f of files) {
+            const path = f.webkitRelativePath || f.name;
+            const parts = path.split('/');
+            if (parts.length > 1) return parts[0];
+        }
+        return files[0]?.name || '未知文件夹';
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ===== 渲染单条上传记录 =====
+    function renderSingleRecord() {
+        const section = document.getElementById('uploadedSection');
+        const card = document.getElementById('singleRecordCard');
+
+        if (!uploadRecord) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+
+        // 预览文件列表（最多显示5个）
+        const previewFiles = uploadRecord.files.slice(0, 5);
+        const extraCount = uploadRecord.files.length - 5;
+
+        card.innerHTML = `
+            <div class="record-info">
+                <span class="record-name">
+                    <i class="fas fa-folder" style="color:#ff9800;"></i>
+                    ${escapeHtml(uploadRecord.folderName)}
+                </span>
+                <span class="record-meta">
+                    <span><i class="far fa-clock"></i> 上传时间：${uploadRecord.uploadTimeStr}</span>
+                    <span><i class="far fa-file-alt"></i> ${uploadRecord.fileCount} 个文件</span>
+                </span>
+            </div>
+            <div class="record-actions">
+                <button class="btn-view" onclick="viewRecord()" title="查看文件列表">
+                    <i class="fas fa-eye"></i> 查看
+                </button>
+                <button class="btn-reupload" onclick="reuploadRecord()" title="删除后重新上传">
+                    <i class="fas fa-redo"></i> 重新上传
+                </button>
+            </div>
+        `;
+    }
+
+    // 查看记录详情
+    function viewRecord() {
+        if (!uploadRecord) return;
+        const fileList = uploadRecord.files.join('\n');
+        alert(`文件夹：${uploadRecord.folderName}\n上传时间：${uploadRecord.uploadTimeStr}\n文件数量：${uploadRecord.fileCount} 个\n\n文件列表：\n${fileList}`);
+    }
+
+    // 重新上传（删除当前记录）
+    function reuploadRecord() {
+        if (!confirm('确定要重新上传吗？当前文件夹记录将被删除。')) return;
+        uploadRecord = null;
+        saveRecord();
+        renderSingleRecord();
+    }
+
+    // 确认提交
+    function confirmUpload() {
+        if (!uploadRecord) {
+            alert('请先上传结果文件夹！');
+            return;
+        }
+        alert('结果文件提交成功！');
+        closeUploadModal();
+    }
+
+    // ===== 交卷弹窗逻辑 =====
+    function openSubmitModal() {
+        document.getElementById('submitModal').classList.add('active');
+        // 每次打开重置状态
+        document.getElementById('submitConfirmCheck').checked = false;
+        document.getElementById('submitConfirmBtn').disabled = true;
+    }
+
+    function closeSubmitModal() {
+        document.getElementById('submitModal').classList.remove('active');
+    }
+
+    document.getElementById('submitModal').addEventListener('click', function(e) {
+        if (e.target === this) closeSubmitModal();
+    });
+
+    function toggleSubmitBtn() {
+        const checked = document.getElementById('submitConfirmCheck').checked;
+        document.getElementById('submitConfirmBtn').disabled = !checked;
+    }
+
+    function doSubmit() {
+        alert('提交成功！');
+        // 自动退出登录（模拟）
+        window.location.href = 'login.html';
+    }
+    </script>
+    <script src="../shared/requirement.js"></script>
+
+</body>
+</html>

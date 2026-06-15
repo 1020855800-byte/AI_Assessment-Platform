@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考试计划详情 - 机构管理</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 12px;
+      background: #fafafa;
+      border-radius: 6px;
+    }
+    .detail-label {
+      font-size: 12px;
+      color: #999;
+    }
+    .detail-value {
+      font-size: 14px;
+      color: #222;
+      font-weight: 500;
+    }
+    .btn-xs {
+      padding: 2px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+      line-height: 1.5;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+    .btn-warning {
+      background: #fa8c16;
+      color: #fff;
+    }
+    .btn-warning:hover {
+      background: #e67e00;
+    }
+
+    /* ====== 右侧抽屉样式 ====== */
+    .drawer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.45);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    .drawer-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -520px;
+      width: 520px;
+      height: 100%;
+      background: #fff;
+      z-index: 1000;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .drawer.show {
+      right: 0;
+    }
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .drawer-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #222;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .drawer-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 20px;
+      border-top: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<script>const CURRENT_PAGE = 'exam-plans';</script>
+<script src="../shared/sidebar.js"></script>
+
+<div class="main-content">
+  <!-- 面包屑导航 -->
+  <div class="flex items-center justify-between text-sm text-muted mb-4">
+    <div class="flex items-center gap-2">
+      <a href="exam-plans.html" class="hover:text-primary">考试计划</a>
+      <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+      <span class="text-primary font-medium">2026年第一期标注师认证</span>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="location.href='exam-plans.html'"><i class="fa-solid fa-arrow-left"></i> 返回</button>
+  </div>
+
+  <!-- 页面头部 -->
+  <div class="card mb-6">
+    <div class="card-body">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-xl font-bold" style="color:#222;">计划名称：2026年第一期标注师认证</h1>
+            <span class="badge badge-orange" style="font-size:13px;padding:4px 14px;">进行中</span>
+          </div>
+          <p style="color:#888;font-size:13px;">
+            <i class="fa-regular fa-calendar mr-1"></i> 2026-06-10 09:00 ~ 12:00
+            <span class="mx-2">|</span>
+            <i class="fa-regular fa-clock mr-1"></i> 90 分钟
+            <span class="mx-2">|</span>
+            <i class="fa-regular fa-user mr-1"></i> 486 名考生
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-danger" onclick="confirmFinish()"><i class="fa-solid fa-check"></i> 办结</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 考试进度统计卡片 -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#e6f4ff;color:#1677ff;">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <div>
+        <div class="stat-value">486</div>
+        <div class="stat-label">考生总数</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#f6ffed;color:#52c41a;">
+        <i class="fa-solid fa-check-circle"></i>
+      </div>
+      <div>
+        <div class="stat-value">386</div>
+        <div class="stat-label">已交卷</div>
+        <div class="stat-change" style="color:#52c41a;">79.4%</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fff7e6;color:#fa8c16;">
+        <i class="fa-solid fa-spinner"></i>
+      </div>
+      <div>
+        <div class="stat-value">92</div>
+        <div class="stat-label">考试中</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 查询区 -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>姓名/身份证</label>
+      <input type="text" placeholder="搜索考生姓名或身份证号" style="min-width:180px;">
+    </div>
+    <div class="filter-group">
+      <label>作答状态</label>
+      <select>
+        <option>全部</option>
+        <option>未开始</option>
+        <option>考试中</option>
+        <option>已交卷</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>结果文件</label>
+      <select>
+        <option>全部</option>
+        <option>已上传</option>
+        <option>未上传</option>
+      </select>
+    </div>
+    <button class="btn btn-primary"><i class="fa-solid fa-search"></i> 查询</button>
+    <button class="btn btn-outline"><i class="fa-solid fa-rotate"></i> 重置</button>
+  </div>
+
+  <!-- 考生列表 -->
+  <div class="card">
+    <div class="card-header" style="justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <h3><i class="fa-solid fa-users text-primary mr-2"></i>考生列表</h3>
+        <span class="text-muted text-sm">共 486 人</span>
+        <div class="flex gap-2" style="margin-left:16px;">
+          <button class="btn btn-primary btn-sm" onclick="openModal('addStudentModal')"><i class="fa-solid fa-plus"></i> 添加考生</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('importModal')"><i class="fa-solid fa-user-plus"></i> 导入考生</button>
+          <button class="btn btn-danger btn-sm"><i class="fa-solid fa-trash-can"></i> 删除</button>
+          <button class="btn btn-outline btn-sm" onclick="startExport()"><i class="fa-solid fa-download"></i> 导出结果文件</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox"></th>
+              <th>序号</th>
+              <th>姓名</th>
+              <th>身份证号</th>
+              <th>手机号</th>
+              <th>考试开始时间</th>
+              <th>自动交卷时间点</th>
+              <th>倒计时(分钟)</th>
+              <th>加时(分钟)</th>
+              <th>作答状态</th>
+              <th>结果文件</th>
+              <th style="width:240px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>001</td>
+              <td class="font-medium">张三</td>
+              <td>440123199801011234</td>
+              <td>13800138001</td>
+              <td>2026-06-10 09:01:22</td>
+              <td>2026-06-10 09:01:22</td>
+              <td>59</td>
+              <td>-</td>
+              <td><span class="badge badge-green">已交卷</span></td>
+              <td><a href="javascript:void(0)" onclick="downloadFile('张三')" title="下载结果文件" style="color:#1677ff;font-size:18px;text-decoration:none;"><i class="fa-regular fa-folder-open"></i></a></td>
+              <td>
+                <button class="btn btn-text btn-sm" onclick="editStudent('张三','13800138001')" title="编辑"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn btn-text btn-sm" onclick="deleteStudent('张三')" title="删除" style="color:#f5222d;"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="btn btn-text btn-sm" onclick="showDetail('001','张三','440123199801011234','13800138001','2026-06-10 09:01:22','2026-06-10 10:25:15','192.168.1.101','2026-06-10 09:01:22','2026-06-10 10:31:22','90','-','已交卷')" title="详情"><i class="fa-solid fa-list"></i></button>
+                <!-- <button class="btn btn-text btn-sm" onclick="openAddTime('张三')"><i class="fa-solid fa-clock"></i></button> -->
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>002</td>
+              <td class="font-medium">李四</td>
+              <td>440123199802021235</td>
+              <td>13800138002</td>
+              <td>2026-06-10 09:00:45</td>
+              <td>2026-06-10 09:00:45</td>
+              <td>56</td>
+              <td>-</td>
+              <td><span class="badge badge-orange">考试中</span></td>
+              <td><span class="text-muted" style="font-size:12px;">未上传</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" onclick="editStudent('李四','13800138002')" title="编辑"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn btn-text btn-sm" onclick="deleteStudent('李四')" title="删除" style="color:#f5222d;"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="btn btn-text btn-sm" onclick="showDetail('002','李四','440123199802021235','13800138002','2026-06-10 09:00:45','-','192.168.1.102','2026-06-10 09:00:45','2026-06-10 10:30:45','90','-','考试中')" title="详情"><i class="fa-solid fa-list"></i></button>
+                <!-- <button class="btn btn-text btn-sm" onclick="openAddTime('李四')"><i class="fa-solid fa-clock"></i></button> -->
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>003</td>
+              <td class="font-medium">王五</td>
+              <td>440123199803031345</td>
+              <td>13800138003</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td><span class="badge badge-gray">未开始</span></td>
+              <td><span class="text-muted" style="font-size:12px;">未上传</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" onclick="editStudent('王五','13800138003')" title="编辑"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn btn-text btn-sm" onclick="deleteStudent('王五')" title="删除" style="color:#f5222d;"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="btn btn-text btn-sm" onclick="showDetail('003','王五','440123199803031345','13800138003','-','-','-','-','-','90','-','未开始')" title="详情"><i class="fa-solid fa-list"></i></button>
+                <!-- <button class="btn btn-text btn-sm" onclick="openAddTime('王五')"><i class="fa-solid fa-clock"></i></button> -->
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>004</td>
+              <td class="font-medium">赵六</td>
+              <td>440123199804041456</td>
+              <td>13800138004</td>
+              <td>2026-06-10 09:02:10</td>
+              <td>2026-06-10 09:02:10</td>
+              <td>50</td>
+              <td>15</td>
+              <td><span class="badge badge-green">已交卷</span></td>
+              <td><a href="javascript:void(0)" onclick="downloadFile('赵六')" title="下载结果文件" style="color:#1677ff;font-size:18px;text-decoration:none;"><i class="fa-regular fa-folder-open"></i></a></td>
+              <td>
+                <button class="btn btn-text btn-sm" onclick="editStudent('赵六','13800138004')" title="编辑"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn btn-text btn-sm" onclick="deleteStudent('赵六')" title="删除" style="color:#f5222d;"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="btn btn-text btn-sm" onclick="showDetail('004','赵六','440123199804041456','13800138004','2026-06-10 09:02:10','2026-06-10 10:30:45','192.168.1.104','2026-06-10 09:02:10','2026-06-10 11:17:10','90','15','已交卷')" title="详情"><i class="fa-solid fa-list"></i></button>
+                <!-- <button class="btn btn-text btn-sm" onclick="openAddTime('赵六')"><i class="fa-solid fa-clock"></i></button> -->
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>005</td>
+              <td class="font-medium">孙七</td>
+              <td>440123199805051567</td>
+              <td>13800138005</td>
+              <td>2026-06-10 09:00:33</td>
+              <td>2026-06-10 09:00:33</td>
+              <td>0</td>
+              <td>-</td>
+              <td><span class="badge badge-green">已交卷</span></td>
+              <td><a href="javascript:void(0)" onclick="downloadFile('孙七')" title="下载结果文件" style="color:#1677ff;font-size:18px;text-decoration:none;"><i class="fa-regular fa-folder-open"></i></a></td>
+              <td>
+                <button class="btn btn-text btn-sm" onclick="editStudent('孙七','13800138005')" title="编辑"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn btn-text btn-sm" onclick="deleteStudent('孙七')" title="删除" style="color:#f5222d;"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="btn btn-text btn-sm" onclick="showDetail('005','孙七','440123199805051567','13800138005','2026-06-10 09:00:33','2026-06-10 10:15:22','192.168.1.105','2026-06-10 09:00:33','2026-06-10 10:30:33','90','-','已交卷')" title="详情"><i class="fa-solid fa-list"></i></button>
+                <!-- <button class="btn btn-text btn-sm" onclick="openAddTime('孙七')"><i class="fa-solid fa-clock"></i></button> -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination" style="padding:16px 20px;">
+        <div class="pagination-info">默认10条/页，共 486 条</div>
+        <div class="pagination-controls">
+          <button class="page-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">...</button>
+          <button class="page-btn">98</button>
+          <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部信息 -->
+  <div class="mt-4 flex items-center justify-between">
+    <div class="alert alert-info p-3 text-sm" style="margin:0;">
+      <i class="fa-solid fa-circle-info"></i>
+      <div>加时操作已记录至操作日志。考试结束后，加时超过的时长将自动失效。</div>
+    </div>
+    <!-- <button class="btn btn-outline btn-sm"><i class="fa-solid fa-clock-rotate-left"></i> 查看操作日志</button> -->
+  </div>
+</div>
+
+<!-- ========== 单个添加考生弹窗 ========== -->
+<div class="modal-overlay" id="addStudentModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-plus-circle text-primary mr-2"></i>添加考生</h3>
+      <button class="modal-close" onclick="closeModal('addStudentModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>姓名 <span class="required">*</span></label>
+        <input class="form-control" id="studentName" placeholder="请输入考生姓名" maxlength="50">
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>身份证号 <span class="required">*</span></label>
+        <input class="form-control" id="studentIdCard" placeholder="请输入身份证号" maxlength="18">
+      </div>
+      <div class="form-group">
+        <label>手机号</label>
+        <input class="form-control" id="studentPhone" placeholder="请输入手机号（选填）" maxlength="11">
+        <!-- <div class="help-text">选填，方便联系考生</div> -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addStudentModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmAddStudent()"><i class="fa-solid fa-check"></i> 确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 编辑考生弹窗 ========== -->
+<div class="modal-overlay" id="editStudentModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-pen-to-square text-primary mr-2"></i>编辑考生</h3>
+      <button class="modal-close" onclick="closeModal('editStudentModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>姓名 <span class="required">*</span></label>
+        <input class="form-control" id="editStudentName" placeholder="请输入考生姓名" maxlength="50">
+      </div>
+      <div class="form-group">
+        <label>手机号</label>
+        <input class="form-control" id="editStudentPhone" placeholder="请输入手机号" maxlength="11">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editStudentModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmEditStudent()"><i class="fa-solid fa-check"></i> 确认修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 考生详情右侧抽屉 ========== -->
+<div class="drawer-overlay" id="detailDrawerOverlay" onclick="closeDrawer('detailDrawer')"></div>
+<div class="drawer" id="detailDrawer">
+  <div class="drawer-header">
+    <h3><i class="fa-solid fa-list text-primary mr-2"></i>考生详情</h3>
+    <button class="modal-close" onclick="closeDrawer('detailDrawer')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div style="margin-bottom:20px;">
+      <h4 style="font-size:14px;font-weight:600;color:#222;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #eee;"><i class="fa-solid fa-user mr-2 text-primary"></i>个人信息</h4>
+      <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">姓名</span><span class="detail-value" id="detailName">-</span></div>
+        <div class="detail-item"><span class="detail-label">身份证号</span><span class="detail-value" id="detailIdCard">-</span></div>
+        <div class="detail-item"><span class="detail-label">手机号</span><span class="detail-value" id="detailPhone">-</span></div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <h4 style="font-size:14px;font-weight:600;color:#222;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #eee;"><i class="fa-solid fa-hourglass-half mr-2 text-primary"></i>考试信息 <span id="detailExamStatusBadge" style="display:none;font-size:12px;padding:2px 10px;border-radius:10px;font-weight:500;vertical-align:middle;margin-left:6px;"></span></h4>
+      <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">考试开始时间</span><span class="detail-value" id="detailExamStart">-</span></div>
+        <div class="detail-item"><span class="detail-label">自动交卷时间点</span><span class="detail-value" id="detailAutoSubmit">-</span></div>
+        <div class="detail-item"><span class="detail-label">登录IP</span><span class="detail-value" id="detailLoginIp">-</span></div>
+        <div class="detail-item"><span class="detail-label">考试剩余时长</span><span class="detail-value" style="display:flex;align-items:center;gap:8px;"><span id="detailRemainTime">0分钟</span><button class="btn-xs btn-warning" onclick="openAddTime(currentDetailName)" title="为考生加时"><i class="fa-solid fa-clock"></i> 加时</button></span></div>
+        <div class="detail-item"><span class="detail-label">加时时长（累计）</span><span class="detail-value" id="detailAddTime">0 分钟</span></div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <h4 style="font-size:14px;font-weight:600;color:#222;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #eee;"><i class="fa-solid fa-clock-rotate-left mr-2 text-primary"></i>操作信息</h4>
+      <div class="table-wrapper" style="border:1px solid #f0f0f0;border-radius:6px;overflow:hidden;">
+        <table style="font-size:13px;">
+          <thead>
+            <tr>
+              <th style="width:60px;background:#fafafa;padding:8px 12px;font-weight:600;color:#888;border-bottom:2px solid #f0f0f0;text-align:left;">序号</th>
+              <th style="width:130px;background:#fafafa;padding:8px 12px;font-weight:600;color:#888;border-bottom:2px solid #f0f0f0;text-align:left;">操作</th>
+              <th style="background:#fafafa;padding:8px 12px;font-weight:600;color:#888;border-bottom:2px solid #f0f0f0;text-align:left;">备注</th>
+              <th style="width:180px;background:#fafafa;padding:8px 12px;font-weight:600;color:#888;border-bottom:2px solid #f0f0f0;text-align:left;">操作时间</th>
+            </tr>
+          </thead>
+          <tbody id="operationLogBody">
+            <tr>
+              <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333;">1</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333;">登入系统</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333;">-</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333;">2026-06-10 09:01:22</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333;">2</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333;">提交结果文件</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333;">考生交卷</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #f5f5f5;color:#333;">2026-06-10 10:25:15</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;border-bottom:none;color:#333;">3</td>
+              <td style="padding:8px 12px;border-bottom:none;color:#333;">登出系统</td>
+              <td style="padding:8px 12px;border-bottom:none;color:#333;">超时自动交卷</td>
+              <td style="padding:8px 12px;border-bottom:none;color:#333;">2026-06-10 10:31:22</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- 操作日志分页 -->
+      <div class="pagination" style="padding:8px 0 0;">
+        <div class="pagination-info" id="operationLogInfo">10条/页，共 3 条</div>
+        <div class="pagination-controls">
+          <button class="page-btn" id="opLogPrev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="page-btn active" id="opLogPage1" data-op-page="1">1</button>
+          <button class="page-btn" id="opLogNext" disabled><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-outline" onclick="closeDrawer('detailDrawer')">关闭</button>
+  </div>
+</div>
+
+
+
+<!-- ========== 导入考生弹窗 ========== -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-upload text-primary mr-2"></i>导入考生</h3>
+      <button class="modal-close" onclick="closeModal('importModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-info mb-4">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>批量导入前请先下载Excel模板填写后再上传。</div>
+      </div>
+      <div class="steps">
+        <div class="step active">
+          <div class="step-number">1</div>
+          <div class="step-label">下载模板</div>
+        </div>
+        <!-- <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-label">填写数据</div>
+        </div> -->
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-label">上传文件</div>
+        </div>
+      </div>
+      <div class="upload-zone mb-4" onclick="alert('选择Excel文件进行上传')">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <p><strong>点击上传</strong> 或拖拽文件到此处</p>
+        <p style="font-size:11px;color:#bbb;margin-top:4px;">支持 .xlsx, .xls 格式，不超过 5MB</p>
+      </div>
+      <i>此处分行显示错误信息（若有）</i>
+      <div style="display:flex;align-items:center;justify-content:space-between;" class="mb-4">
+        <a class="btn btn-outline btn-sm"><i class="fa-solid fa-download"></i> 下载模板</a>
+        <!-- <span class="text-muted text-sm">模板包含：姓名、身份证号、手机号</span> -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('importModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmImport()"><i class="fa-solid fa-check"></i> 确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 加时弹窗 ========== -->
+<div class="modal-overlay" id="addTimeModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-clock text-warning mr-2"></i><span id="addTimeTitle">考生加时</span></h3>
+      <button class="modal-close" onclick="closeModal('addTimeModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-info mb-3">
+        <i class="fa-solid fa-circle-info"></i>
+        <div id="addTimeInfo">当前考试时长：<strong>90 分钟</strong></div>
+      </div>
+      <div class="form-group">
+        <label>加时分钟数 <span class="required">*</span></label>
+        <input class="form-control" id="addTimeMinutes" type="number" min="1" placeholder="请输入加时分钟数（需大于0）" value="15">
+        <div class="help-text">加时后，考生端倒计时将相应延长。此操作将记录至操作日志。</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addTimeModal')">取消</button>
+      <button class="btn btn-warning" onclick="confirmAddTime()"><i class="fa-solid fa-check"></i> 确认加时</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 办结确认弹窗 ========== -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-file-export text-primary mr-2"></i>导出结果文件</h3>
+    </div>
+    <div class="modal-body text-center" style="padding:40px 20px;">
+      <div style="font-size:48px;color:#1677ff;margin-bottom:16px;">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+      <p class="font-medium" style="color:#222;font-size:15px;margin-bottom:8px;">正在打包下载中...</p>
+      <p style="color:#888;font-size:13px;">请勿关闭此弹窗，文件打包完成后将自动下载。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 办结确认弹窗 ========== -->
+<div class="modal-overlay" id="finishModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-triangle-exclamation text-danger mr-2"></i>确认办结</h3>
+      <button class="modal-close" onclick="closeModal('finishModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body text-center">
+      <div style="font-size:48px;color:#f5222d;margin-bottom:12px;">
+        <i class="fa-solid fa-circle-exclamation"></i>
+      </div>
+      <p class="font-medium" style="color:#222;font-size:15px;margin-bottom:8px;">确认办结此考试计划？</p>
+      <p style="color:#888;font-size:13px;">办结后将禁止所有考生提交，已有作答记录将被保存。</p>
+      <p style="color:#f5222d;font-size:12px;margin-top:8px;font-weight:500;">此操作不可撤销！</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-outline" onclick="closeModal('finishModal')">取消</button>
+      <button class="btn btn-danger" onclick="doFinish()"><i class="fa-solid fa-check"></i> 确认办结</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+function openDrawer(id) {
+  document.getElementById(id).classList.add('show');
+  document.getElementById(id + 'Overlay').classList.add('show');
+}
+function closeDrawer(id) {
+  document.getElementById(id).classList.remove('show');
+  document.getElementById(id + 'Overlay').classList.remove('show');
+}
+function confirmImport() {
+  closeModal('importModal');
+  alert('✅ 导入成功！\n\n新增考生 5 人\n跳过重复 0 条');
+}
+function confirmAddStudent() {
+  const name = document.getElementById('studentName').value.trim();
+  const idCard = document.getElementById('studentIdCard').value.trim();
+  const phone = document.getElementById('studentPhone').value.trim();
+
+  if (!name) {
+    alert('请输入考生姓名');
+    document.getElementById('studentName').focus();
+    return;
+  }
+  if (!idCard) {
+    alert('请输入身份证号');
+    document.getElementById('studentIdCard').focus();
+    return;
+  }
+
+  closeModal('addStudentModal');
+  alert(`✅ 考生添加成功！\n\n姓名：${name}\n身份证号：${idCard}${phone ? '\n手机号：' + phone : ''}`);
+
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentIdCard').value = '';
+  document.getElementById('studentPhone').value = '';
+}
+function confirmAddTime() {
+  var minutes = document.getElementById('addTimeMinutes').value;
+  closeModal('addTimeModal');
+  alert('✅ 加时成功！\n\n考生「' + currentAddTimeName + '」已加时 ' + minutes + ' 分钟\n当前总时长：' + (90 + parseInt(minutes || 0)) + ' 分钟');
+}
+function confirmFinish() {
+  openModal('finishModal');
+}
+function downloadFile(name) {
+  // 模拟下载结果文件
+  alert(`📥 正在下载 ${name} 的结果文件...`);
+}
+function editStudent(name, phone) {
+  document.getElementById('editStudentName').value = name;
+  document.getElementById('editStudentPhone').value = phone || '';
+  openModal('editStudentModal');
+}
+function confirmEditStudent() {
+  const name = document.getElementById('editStudentName').value.trim();
+  const phone = document.getElementById('editStudentPhone').value.trim();
+  if (!name) {
+    alert('请输入考生姓名');
+    document.getElementById('editStudentName').focus();
+    return;
+  }
+  closeModal('editStudentModal');
+  alert(`✅ 考生信息已修改！\n\n姓名：${name}\n手机号：${phone || '未填写'}`);
+}
+var currentDetailSeq = '';
+var currentDetailName = '';
+var currentAddTimeName = '';
+
+// 操作日志分页状态
+var operationLogState = {
+  allRows: [],
+  pageSize: 10,
+  currentPage: 1
+};
+
+function renderOperationLog(page) {
+  var tbody = document.getElementById('operationLogBody');
+  var data = operationLogState.allRows;
+  var pageSize = operationLogState.pageSize;
+  var totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+  var start = (page - 1) * pageSize;
+  var end = Math.min(start + pageSize, data.length);
+  var pageData = data.slice(start, end);
+
+  tbody.innerHTML = '';
+  pageData.forEach(function(item, idx) {
+    var tr = document.createElement('tr');
+    var isLast = (idx === pageData.length - 1);
+    tr.innerHTML = '<td style="padding:8px 12px;' + (isLast ? 'border-bottom:none' : 'border-bottom:1px solid #f5f5f5') + ';color:#333;">' + item.seq + '</td>'
+      + '<td style="padding:8px 12px;' + (isLast ? 'border-bottom:none' : 'border-bottom:1px solid #f5f5f5') + ';color:#333;">' + item.operation + '</td>'
+      + '<td style="padding:8px 12px;' + (isLast ? 'border-bottom:none' : 'border-bottom:1px solid #f5f5f5') + ';color:#333;">' + item.remark + '</td>'
+      + '<td style="padding:8px 12px;' + (isLast ? 'border-bottom:none' : 'border-bottom:1px solid #f5f5f5') + ';color:#333;">' + item.time + '</td>';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("operationLogInfo").textContent = "显示 " + (start + 1) + "-" + end + " 条，共 " + data.length + " 条";
+
+  var prevBtn = document.getElementById('opLogPrev');
+  var nextBtn = document.getElementById('opLogNext');
+  prevBtn.disabled = page <= 1;
+  nextBtn.disabled = page >= totalPages;
+  operationLogState.currentPage = page;
+}
+
+function initOperationLog(studentData) {
+  var logs = [];
+  var seq = 0;
+
+  if (studentData.loginTime && studentData.loginTime !== '-') {
+    logs.push({ seq: ++seq, operation: '登入系统', remark: '-', time: studentData.loginTime });
+  }
+  if (studentData.submitTime && studentData.submitTime !== '-') {
+    var remark = studentData.status === '已交卷' ? '考生交卷/超时自动交卷/强制收卷' : '超时自动交卷';
+    logs.push({ seq: ++seq, operation: '提交结果文件', remark: remark, time: studentData.submitTime });
+  }
+  if (studentData.logoutTime && studentData.logoutTime !== '-') {
+    var remark2 = studentData.status === '已交卷' ? '考生交卷' : '超时自动交卷';
+    logs.push({ seq: ++seq, operation: '登出系统', remark: '-', time: studentData.logoutTime });
+  }
+
+  if (logs.length === 0) {
+    logs = [
+      { seq: 1, operation: '登入系统', remark: '-', time: '2026-06-10 09:01:22' },
+      { seq: 2, operation: '提交结果文件', remark: '考生交卷', time: '2026-06-10 10:25:15' },
+      { seq: 3, operation: '登出系统', remark: '-', time: '2026-06-10 10:31:22' }
+    ];
+  }
+
+  operationLogState.allRows = logs;
+  operationLogState.currentPage = 1;
+  renderOperationLog(1);
+}
+
+function showDetail(seq, name, idCard, phone, loginTime, logoutTime, loginIp, examStart, examEnd, totalMin, addTime, status) {
+  currentDetailSeq = seq;
+  currentDetailName = name;
+  document.getElementById('detailName').textContent = name;
+  document.getElementById('detailIdCard').textContent = idCard;
+  document.getElementById('detailPhone').textContent = phone || '未填写';
+
+  // 填充操作日志表格
+  initOperationLog({
+    loginTime: loginTime,
+    logoutTime: logoutTime,
+    submitTime: examEnd,
+    status: status
+  });
+
+  // 设置考试状态标签
+  var badge = document.getElementById('detailExamStatusBadge');
+  if (status === '考试中') {
+    badge.textContent = '考试中';
+    badge.style.cssText = 'display:inline;font-size:12px;padding:2px 10px;border-radius:10px;font-weight:500;vertical-align:middle;margin-left:6px;background:#fff7e6;color:#fa8c16;';
+  } else if (status === '已交卷') {
+    badge.textContent = '已交卷';
+    badge.style.cssText = 'display:inline;font-size:12px;padding:2px 10px;border-radius:10px;font-weight:500;vertical-align:middle;margin-left:6px;background:#f6ffed;color:#52c41a;';
+  } else if (status === '未开始') {
+    badge.textContent = '未开始';
+    badge.style.cssText = 'display:inline;font-size:12px;padding:2px 10px;border-radius:10px;font-weight:500;vertical-align:middle;margin-left:6px;background:#f5f5f5;color:#999;';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  // 填充考试信息（登录IP已移入此区域）
+  document.getElementById('detailExamStart').textContent = examStart || '-';
+  document.getElementById('detailLoginIp').textContent = loginIp || '-';
+
+  var autoSubmitText = '-';
+  if (status === '考试中' && examStart && examStart !== '-') {
+    autoSubmitText = "2026-06-10 10:01:22";
+  }
+  document.getElementById('detailRemainTime').textContent = '0分钟';
+  document.getElementById('detailAutoSubmit').textContent = autoSubmitText;
+  document.getElementById('detailAddTime').textContent = (addTime && addTime !== '-' ? addTime : '0') + ' 分钟';
+
+  openDrawer('detailDrawer');
+}
+function openAddTime(name) {
+  currentAddTimeName = name;
+  document.getElementById('addTimeTitle').textContent = '考生加时 - ' + name;
+  document.getElementById('addTimeInfo').innerHTML = '当前考试时长：<strong>90 分钟</strong>';
+  document.getElementById('addTimeMinutes').value = 15;
+  openModal('addTimeModal');
+}
+function deleteStudent(name) {
+  if (confirm(`确认删除考生「${name}」吗？此操作不可撤销。`)) {
+    alert(`✅ 已删除考生：${name}`);
+  }
+}
+function startExport() {
+  openModal('exportModal');
+  // 模拟打包下载，2秒后自动关闭并下载
+  setTimeout(() => {
+    closeModal('exportModal');
+    alert('✅ 文件下载完成！\n\n考试结果文件已导出。');
+  }, 2000);
+}
+function doFinish() {
+  closeModal('finishModal');
+  alert('✅ 考试计划已办结！\n\n状态变更为「已结束」\n可下载完整考试结果。');
+}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this && this.id !== 'exportModal') this.classList.remove('show');
+  });
+});
+// 点击抽屉遮罩关闭抽屉
+document.querySelectorAll('.drawer-overlay').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this) {
+      var drawerId = this.id.replace('Overlay', '');
+      closeDrawer(drawerId);
+    }
+  });
+});
+// 操作日志分页事件
+document.getElementById('opLogPrev').addEventListener('click', function() {
+  if (operationLogState.currentPage > 1) {
+    renderOperationLog(operationLogState.currentPage - 1);
+  }
+});
+document.getElementById('opLogNext').addEventListener('click', function() {
+  var totalPages = Math.max(1, Math.ceil(operationLogState.allRows.length / operationLogState.pageSize));
+  if (operationLogState.currentPage < totalPages) {
+    renderOperationLog(operationLogState.currentPage + 1);
+  }
+});
+</script>
+<script>
+  const REQUIREMENT_TEXT = `机构管理 - 考试计划详情
+
+需求说明：
+1、若账号已过期，仅可查看，无法操作任何数据；
+2、添加考生和导入考生时，需要校验计划内是否重复报名，并提示用户；
+3、导入考生弹窗：模板excel包含：姓名、身份证号、手机号；导入时校验数据格式，提示用户错误行数和错误类型；
+4、考生详情弹窗：考试开始时间，为考生在本次考试中首次登录的时间。自动交卷时间：为考试开始时间+时长+加时时长。已交卷状态下，也允许进行加时。
+5、添加考生时，校验当前添加人数是否超过本账号的剩余可考人数，若超过则提示用户剩余可考人数。
+6、办结：点击办结状态后，为开始的考生，状态仍未未开始；状态为考试中的考生，强制收卷，状态变更为已交卷。
+7、已办结（已结束）的考试，仅可查看，无法进行加时、添加学生、删除等任何操作。(支持删除未开始考试的考生)
+8、导出结果文件：一级文件夹以计划名称命名，各结果文件夹以学生身份证号进行命名。
+`;
+</script>
+<script src="../shared/requirement.js"></script>
+</body>
+</html>

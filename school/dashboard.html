@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页 - 机构管理</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    .welcome-banner { background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%); border-radius: 12px; padding: 28px 32px; color: #fff; position: relative; overflow: hidden; }
+    .welcome-banner::after { content: ''; position: absolute; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.05); top: -80px; right: 60px; }
+    .progress-ring { width: 100%; height: 200px; position: relative; display: flex; align-items: center; justify-content: center; }
+    .progress-ring .center-text { position: absolute; text-align: center; }
+    .progress-ring .center-text .num { font-size: 32px; font-weight: 700; color: #222; }
+    .progress-ring .center-text .label { font-size: 12px; color: #888; }
+    .info-tip { position: relative; display: inline-flex; align-items: center; cursor: pointer; color: rgba(255,255,255,0.75); }
+    .info-tip:hover { color: #fff; }
+    .info-tip__bubble {
+      visibility: hidden; opacity: 0;
+      position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+      background: #333; color: #fff; font-size: 12px; line-height: 1.5;
+      padding: 8px 12px; border-radius: 6px; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100;
+      transition: opacity 0.15s ease, visibility 0.15s ease;
+      pointer-events: none;
+    }
+    .info-tip__bubble::after {
+      content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      border: 6px solid transparent; border-top-color: #333;
+    }
+    .info-tip:hover .info-tip__bubble { visibility: visible; opacity: 1; }
+  </style>
+</head>
+<body>
+<script>const CURRENT_PAGE = 'dashboard';</script>
+<script src="../shared/sidebar.js"></script>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>首页</h1>
+  </div>
+
+  <!-- 欢迎横幅 -->
+  <div class="welcome-banner mb-6">
+    <div class="relative z-10" style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h2 class="text-xl font-bold mb-2">华南理工大学，你好！ 📚</h2>
+        <p class="text-blue-200 text-sm inline-flex items-center gap-1">
+          考生总数量(已购买)：50000人。已考考生人数30000人，剩余20000人可参与考试
+          <span class="info-tip">
+            <i class="fa-regular fa-circle-question"></i>
+            <span class="info-tip__bubble">考生总数量指本账号内的包含的可考考生数量，当考生被添加到计划中且登录考试系统后，考生数量额度进行相应扣除。</span>
+          </span>
+        </p>
+      </div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 20px;text-align:center;">
+        <div style="font-size:11px;opacity:0.7;">账号有效期</div>
+        <div style="font-weight:600;">2026-06-12</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#e6f4ff;color:#1677ff;">
+        <i class="fa-solid fa-pen-to-square"></i>
+      </div>
+      <div class="stat-label">考试计划总数</div>
+      <div class="stat-value">6</div>
+      <div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> 本月新增 2 个</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#f6ffed;color:#52c41a;">
+        <i class="fa-solid fa-user-graduate"></i>
+      </div>
+      <div class="stat-label">已考考生总数</div>
+      <div class="stat-value">2,380</div>
+      <div class="stat-change down"><i class="fa-solid fa-arrow-down"></i> 较上月 -8.5%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fff7e6;color:#fa8c16;">
+        <i class="fa-solid fa-play-circle"></i>
+      </div>
+      <div class="stat-label">进行中考试</div>
+      <div class="stat-value">2</div>
+      <!-- <div class="stat-change" style="color:#fa8c16;"><i class="fa-solid fa-users"></i> 共 856 名考生</div> -->
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#f9f0ff;color:#722ed1;">
+        <i class="fa-solid fa-check-circle"></i>
+      </div>
+      <div class="stat-label">已完成考试</div>
+      <div class="stat-value">12</div>
+      <!-- <div class="stat-change">本年度累计</div> -->
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- 考试计划状态分布 -->
+    <div class="card lg:col-span-2">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-list-check text-primary mr-2"></i>考试计划状态分布</h3>
+        <span class="text-muted text-sm">2026年度</span>
+      </div>
+      <div class="card-body">
+        <div class="grid grid-cols-4 gap-3">
+          <div class="text-center p-3 bg-gray-50 rounded-lg">
+            <div class="text-2xl font-bold text-gray-400">1</div>
+            <div class="text-xs text-muted mt-1">草稿</div>
+          </div>
+          <div class="text-center p-3 bg-gray-50 rounded-lg">
+            <div class="text-2xl font-bold text-primary">2</div>
+            <div class="text-xs text-muted mt-1">待考试</div>
+          </div>
+          <div class="text-center p-3 bg-gray-50 rounded-lg">
+            <div class="text-2xl font-bold text-warning">2</div>
+            <div class="text-xs text-muted mt-1">进行中</div>
+          </div>
+          
+          <div class="text-center p-3 bg-gray-50 rounded-lg">
+            <div class="text-2xl font-bold text-success">1</div>
+            <div class="text-xs text-muted mt-1">已结束</div>
+          </div>
+        </div>
+        <!-- 简易进度条 -->
+        <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:16px;">
+          <div style="flex:1;background:#d9d9d9;"></div>
+          <div style="flex:2;background:#1677ff;"></div>
+          <div style="flex:2;background:#faad14;"></div>
+          <div style="flex:1;background:#52c41a;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 最近考试 -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-clock text-primary mr-2"></i>即将开始</h3>
+        <span class="text-muted text-sm">48小时</span>
+      </div>
+      <div class="card-body p-3">
+        <div class="flex items-start gap-3 p-3 bg-orange-50 rounded-lg mb-3">
+          <i class="fa-solid fa-triangle-exclamation text-warning mt-1"></i>
+          <div>
+            <div class="text-sm font-medium text-gray-800">图像标注初级认证</div>
+            <div class="text-xs text-muted mt-1">开始：2026-06-10 09:00</div>
+            <span class="badge badge-orange text-xs mt-1">距开始 15 小时</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+          <i class="fa-solid fa-calendar text-primary mt-1"></i>
+          <div>
+            <div class="text-sm font-medium text-gray-800">文本标注中级认证</div>
+            <div class="text-xs text-muted mt-1">开始：2026-06-15 14:00</div>
+            <span class="badge badge-blue text-xs mt-1">5 天后</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 最近考试计划列表 -->
+  <div class="card">
+    <div class="card-header">
+      <h3><i class="fa-solid fa-rectangle-list text-primary mr-2"></i>考试计划概览</h3>
+      <a href="exam-plans.html" class="btn btn-text btn-sm">查看全部 <i class="fa-solid fa-arrow-right ml-1"></i></a>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="padding:10px 20px;">计划名称</th>
+              <th style="padding:10px 20px;">考评项目</th>
+              <th style="padding:10px 20px;">等级</th>
+              <th style="padding:10px 20px;">考试时间</th>
+              <th style="padding:10px 20px;">时长</th>
+              <th style="padding:10px 20px;">考生人数</th>
+              <th style="padding:10px 20px;">状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:12px 20px;font-weight:500;">2026年第一期标注师认证</td>
+              <td style="padding:12px 20px;">图像标注</td>
+              <td style="padding:12px 20px;"><span class="badge badge-blue">五级/初级工</span></td>
+              <td style="padding:12px 20px;">2026-06-10 09:00 ~ 12:00</td>
+              <td style="padding:12px 20px;">90 分钟</td>
+              <td style="padding:12px 20px;">486</td>
+              <td style="padding:12px 20px;"><span class="badge badge-orange">进行中</span></td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;font-weight:500;">文本标注技能考核</td>
+              <td style="padding:12px 20px;">文本标注</td>
+              <td style="padding:12px 20px;"><span class="badge badge-purple">四级/中级工</span></td>
+              <td style="padding:12px 20px;">2026-06-08 14:00 ~ 16:30</td>
+              <td style="padding:12px 20px;">120 分钟</td>
+              <td style="padding:12px 20px;">370</td>
+              <td style="padding:12px 20px;"><span class="badge badge-green">已结束</span></td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;font-weight:500;">语音标注专项测试</td>
+              <td style="padding:12px 20px;">语音标注</td>
+              <td style="padding:12px 20px;"><span class="badge badge-blue">五级/初级工</span></td>
+              <td style="padding:12px 20px;">2026-06-20 09:00 ~ 10:30</td>
+              <td style="padding:12px 20px;">60 分钟</td>
+              <td style="padding:12px 20px;">520</td>
+              <td style="padding:12px 20px;"><span class="badge badge-blue">待考试</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showToast(msg, type) {
+    const el = document.createElement('div');
+    el.className = 'toast toast-' + type + ' show';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => { el.classList.remove('show'); el.remove(); }, 3000);
+  }
+  setTimeout(() => showToast('✅ 已加载最新数据', 'success'), 500);
+</script>
+<script>
+  const REQUIREMENT_TEXT = `机构管理 - 首页
+
+需求说明：
+1、右上角到期提醒，若账号已过期，则显示 -年-月-日 已过期（标红显示）；
+2、右上角账号名显示学校机构名称，角色显示为“学校管理员”；
+3、考试计划概览：考评项目目前都默认为 人工智能训练师；默认只显示5条；
+4、考生总数量：指对该学校/机构账号分配的考生数量额度，当考生被添加后，只要登录系统进入考试计划，就算额度-1。
+`;
+</script>
+<script src="../shared/requirement.js"></script>
+</body>
+</html>

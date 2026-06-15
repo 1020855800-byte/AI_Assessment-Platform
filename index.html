@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>翰闻人工智能考评系统</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0f5ff 0%, #e6f4ff 30%, #f5f7fa 70%, #f0f5ff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1100px;
+      width: 100%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .header .brand-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #ffffff, #ffffff);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(22,119,255,0.3);
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 15px;
+      color: #888;
+    }
+    .systems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    .system-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 36px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #f0f0f0;
+      transition: all 0.3s;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .system-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+      border-color: #d6e4ff;
+    }
+    .system-card .card-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+    .system-card h3 {
+      font-size: 18px;
+      color: #222;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .system-card .desc {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      min-height: 40px;
+    }
+    .system-card .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .system-card .btn-group {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    .system-card .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .system-card .btn-primary {
+      background: #1677ff;
+      color: #fff;
+      border-color: #1677ff;
+    }
+    .system-card .btn-primary:hover {
+      background: #4096ff;
+      border-color: #4096ff;
+    }
+    .system-card .btn-outline {
+      background: #fff;
+      color: #555;
+      border-color: #e8e8e8;
+    }
+    .system-card .btn-outline:hover {
+      border-color: #1677ff;
+      color: #1677ff;
+    }
+    .system-card .features {
+      text-align: left;
+      padding: 16px 0 0;
+      margin-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+    .system-card .features .feat {
+      font-size: 12px;
+      color: #888;
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .system-card .features .feat i {
+      color: #52c41a;
+      font-size: 10px;
+    }
+    .system-card:nth-child(1) .card-icon { background: #e6f4ff; color: #1677ff; }
+    .system-card:nth-child(1) .tag { background: #e6f4ff; color: #1677ff; }
+    .system-card:nth-child(2) .card-icon { background: #f6ffed; color: #52c41a; }
+    .system-card:nth-child(2) .tag { background: #f6ffed; color: #52c41a; }
+    .system-card:nth-child(3) .card-icon { background: #fff7e6; color: #fa8c16; }
+    .system-card:nth-child(3) .tag { background: #fff7e6; color: #fa8c16; }
+
+    /* 需求说明按钮/面板样式 */
+    .requirement-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 9999;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(22, 119, 255, 0.85);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(22, 119, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .requirement-btn:hover {
+      background: rgba(22, 119, 255, 1);
+      transform: scale(1.08);
+      box-shadow: 0 4px 16px rgba(22, 119, 255, 0.5);
+    }
+    .requirement-btn .btn-tooltip {
+      position: absolute;
+      left: 52px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .requirement-btn:hover .btn-tooltip {
+      opacity: 1;
+    }
+    .requirement-panel {
+      position: fixed;
+      bottom: 78px;
+      left: 24px;
+      z-index: 9998;
+      width: 360px;
+      max-height: 420px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      border: 1px solid #e8e8e8;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: panelIn 0.25s ease-out;
+    }
+    .requirement-panel.open {
+      display: flex;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .requirement-panel .panel-header {
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #1677ff, #4096ff);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .requirement-panel .panel-header i {
+      font-size: 16px;
+    }
+    .requirement-panel .panel-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      flex: 1;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #444;
+      white-space: pre-wrap;
+    }
+    .requirement-panel .panel-body::-webkit-scrollbar { width: 4px; }
+    .requirement-panel .panel-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 2px; }
+
+    .footer {
+      text-align: center;
+      padding: 24px 0;
+      font-size: 13px;
+      color: #bbb;
+    }
+    .footer a { color: #1677ff; text-decoration: none; }
+    .workflow {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      border: 1px solid #f0f0f0;
+    }
+    .workflow h3 {
+      font-size: 15px;
+      color: #222;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .workflow .flow-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .workflow .flow-steps .step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f9f9f9;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #555;
+    }
+    .workflow .flow-steps .step-item i {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #fff;
+    }
+    .workflow .flow-steps .arrow {
+      color: #d9d9d9;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <!-- <div class="brand-icon">
+      <i class="fa-solid fa-robot"></i>
+    </div> -->
+    <div class="brand-icon">
+      <img src="./image/logo.png" alt="Logo" style="width: 50px; height: 50px; object-fit: contain;" />
+    </div>
+    <h1>翰闻人工智能考评系统</h1>
+    <p>快速登录入口</p>
+  </div>
+
+  <!-- 三个端入口卡片 -->
+  <div class="systems-grid">
+    <!-- 系统管理端 -->
+    <div class="system-card">
+      <div class="card-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <span class="tag">运营人员</span>
+      <h3>考评管理后台</h3>
+      <p class="desc">系统运营管理后台，负责学校账号创建、重置密码及运营管理</p>
+      <div class="btn-group">
+        <a href="system/index.html" class="btn btn-primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</a>
+        <a href="system/dashboard.html" class="btn btn-outline"><i class="fa-solid fa-chart-pie"></i> 首页</a>
+      </div>
+      <div class="features">
+        <div class="feat"><i class="fa-solid fa-check"></i> 学校账号管理</div>
+        <!-- <div class="feat"><i class="fa-solid fa-check"></i> 账号续费与权限控制</div> -->
+        <div class="feat"><i class="fa-solid fa-check"></i> 快捷跳转学校后台</div>
+      </div>
+    </div>
+
+    <!-- 机构管理后台 -->
+    <div class="system-card">
+      <div class="card-icon">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <span class="tag">教务/老师</span>
+      <h3>实训管理后台</h3>
+      <p class="desc">学校/机构教学管理中枢，支持考试计划创建、考生管理、过程监控与结果导出</p>
+      <div class="btn-group">
+        <a href="school/index.html" class="btn btn-primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录</a>
+        <a href="school/dashboard.html" class="btn btn-outline"><i class="fa-solid fa-chart-pie"></i> 首页</a>
+      </div>
+      <div class="features">
+        <div class="feat"><i class="fa-solid fa-check"></i> 考试计划全生命周期管理</div>
+        <div class="feat"><i class="fa-solid fa-check"></i> 考生导入与行为监控</div>
+        <div class="feat"><i class="fa-solid fa-check"></i> 考试结果导出</div>
+      </div>
+    </div>
+
+    <!-- 考生端 -->
+    <div class="system-card">
+      <div class="card-icon">
+        <i class="fa-solid fa-user-graduate"></i>
+      </div>
+      <span class="tag">考生</span>
+      <h3>数据标注实训平台</h3>
+      <p class="desc">考生登录入口，通过身份证号+密码登录后跳转至开源考试系统参加考试</p>
+      <div class="btn-group">
+        <a href="student/index.html" class="btn btn-primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> 登录参加考试</a>
+      </div>
+      <div class="features">
+        <div class="feat"><i class="fa-solid fa-check"></i> 身份证号+密码登录</div>
+        <div class="feat"><i class="fa-solid fa-check"></i> 有效期自动校验</div>
+        <div class="feat"><i class="fa-solid fa-check"></i> 登录记录上报与跳转</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 业务流程 -->
+  <div class="workflow">
+    <h3><i class="fa-solid fa-arrows-spin text-primary mr-2" style="color:#1677ff;"></i> 核心业务流程</h3>
+    <div class="flow-steps">
+      <div class="step-item">
+        <i style="background:#1677ff;" class="fa-solid fa-building"></i>
+        创建学校账号
+      </div>
+      <i class="fa-solid fa-arrow-right arrow"></i>
+      <div class="step-item">
+        <i style="background:#52c41a;" class="fa-solid fa-pen-to-square"></i>
+        创建考试计划
+      </div>
+      <i class="fa-solid fa-arrow-right arrow"></i>
+      <div class="step-item">
+        <i style="background:#fa8c16;" class="fa-solid fa-user-plus"></i>
+        导入考生
+      </div>
+      <i class="fa-solid fa-arrow-right arrow"></i>
+      <div class="step-item">
+        <i style="background:#1677ff;" class="fa-solid fa-paper-plane"></i>
+        发布考试
+      </div>
+      <i class="fa-solid fa-arrow-right arrow"></i>
+      <div class="step-item">
+        <i style="background:#722ed1;" class="fa-solid fa-user-graduate"></i>
+        考生考试
+      </div>
+      <i class="fa-solid fa-arrow-right arrow"></i>
+      <div class="step-item">
+        <i style="background:#f5222d;" class="fa-solid fa-check-double"></i>
+        办结
+      </div>
+      <i class="fa-solid fa-arrow-right arrow"></i>
+      <div class="step-item">
+        <i style="background:#52c41a;" class="fa-solid fa-file-export"></i>
+        导出结果
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2026 翰闻人工智能考评管理后台
+    <br>
+    <span style="font-size:11px;">管理员入口 | 教务入口 | 考生入口</span>
+  </div>
+</div>
+<script>
+  const REQUIREMENT_TEXT = `首页（入口页） - 翰闻人工智能考评系统
+
+此页面仅用于快速切换到不同端口登录页，暂无说明`;
+</script>
+<script src="shared/requirement.js"></script>
+</body>
+</html>

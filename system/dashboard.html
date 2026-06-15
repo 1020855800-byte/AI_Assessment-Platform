@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页 - 系统管理端</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    .chart-bar { background: linear-gradient(180deg, #1677ff 0%, #4096ff 100%); border-radius: 4px 4px 0 0; transition: height 0.6s; }
+    .welcome-banner { background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%); border-radius: 12px; padding: 28px 32px; color: #fff; position: relative; overflow: hidden; }
+    .welcome-banner::after { content: ''; position: absolute; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.05); top: -80px; right: 60px; }
+    .welcome-banner::before { content: ''; position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.04); bottom: -40px; right: 200px; }
+  </style>
+</head>
+<body>
+<script>const CURRENT_PAGE = 'dashboard';</script>
+<script src="../shared/sidebar.js"></script>
+
+<div class="main-content">
+  <div class="page-header">
+    <h1>首页</h1>
+    <!-- <p>欢迎回来，管理员！这是系统运营的整体概况</p> -->
+  </div>
+
+  <!-- 欢迎横幅 -->
+  <div class="welcome-banner mb-6">
+    <div class="relative z-10">
+      <h2 class="text-xl font-bold mb-2">今天也是高效运营的一天 🚀</h2>
+      <p class="text-blue-200 text-sm">已有 <strong class="text-white">48</strong> 所学校接入平台，<strong class="text-white">3</strong> 所学校即将到期</p>
+    </div>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#e6f4ff;color:#1677ff;">
+        <i class="fa-solid fa-school"></i>
+      </div>
+      <div class="stat-label">学校总数</div>
+      <div class="stat-value">48</div>
+      <div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> 本月新增 3 所</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#f6ffed;color:#52c41a;">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="stat-label">有效账号</div>
+      <div class="stat-value">45</div>
+      <div class="stat-change down"><i class="fa-solid fa-arrow-down"></i> 占比 93.8%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fff7e6;color:#fa8c16;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="stat-label">即将过期</div>
+      <div class="stat-value">3</div>
+      <div class="stat-change" style="color:#fa8c16;"><i class="fa-solid fa-clock"></i> 7 天内到期</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fff1f0;color:#f5222d;">
+        <i class="fa-solid fa-ban"></i>
+      </div>
+      <div class="stat-label">已过期</div>
+      <div class="stat-value">0</div>
+      <div class="stat-change down"><i class="fa-solid fa-check"></i> 全部正常</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- 月度注册趋势 -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-chart-line text-primary mr-2"></i>月度注册趋势</h3>
+        <span class="text-muted text-sm">2026年</span>
+      </div>
+      <div class="card-body">
+        <div class="flex items-end justify-between" style="height:180px;padding:0 8px;">
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:60%;min-height:30px;" title="1月"></div>
+            <span class="text-xs text-muted mt-2">1月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:45%;min-height:25px;" title="2月"></div>
+            <span class="text-xs text-muted mt-2">2月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:75%;min-height:35px;" title="3月"></div>
+            <span class="text-xs text-muted mt-2">3月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:55%;min-height:28px;" title="4月"></div>
+            <span class="text-xs text-muted mt-2">4月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:80%;min-height:38px;" title="5月"></div>
+            <span class="text-xs text-muted mt-2">5月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:100%;min-height:45px;" title="6月"></div>
+            <span class="text-xs text-muted mt-2">6月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:70%;min-height:32px;" title="7月"></div>
+            <span class="text-xs text-muted mt-2">7月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:50%;min-height:26px;" title="8月"></div>
+            <span class="text-xs text-muted mt-2">8月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:65%;min-height:30px;" title="9月"></div>
+            <span class="text-xs text-muted mt-2">9月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:40%;min-height:22px;" title="10月"></div>
+            <span class="text-xs text-muted mt-2">10月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:85%;min-height:40px;" title="11月"></div>
+            <span class="text-xs text-muted mt-2">11月</span>
+          </div>
+          <div class="flex flex-col items-center" style="width:7%;">
+            <div class="chart-bar w-full" style="height:35%;min-height:20px;" title="12月"></div>
+            <span class="text-xs text-muted mt-2">12月</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 活跃学校排行 -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-ranking-star text-primary mr-2"></i>活跃学校排行</h3>
+        <span class="text-muted text-sm">按考试计划数量</span>
+      </div>
+      <div class="card-body p-0">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th style="padding:10px 20px;">排名</th>
+              <th style="padding:10px 20px;">学校名称</th>
+              <th style="padding:10px 20px;">考试计划数</th>
+              <th style="padding:10px 20px;">已考人数</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:12px 20px;"><span class="badge badge-blue font-bold">1</span></td>
+              <td style="padding:12px 20px;font-weight:500;">华南理工大学</td>
+              <td style="padding:12px 20px;">12</td>
+              <td style="padding:12px 20px;">2,380</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;"><span class="badge badge-blue font-bold">2</span></td>
+              <td style="padding:12px 20px;font-weight:500;">中山大学</td>
+              <td style="padding:12px 20px;">10</td>
+              <td style="padding:12px 20px;">1,950</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;"><span class="badge badge-blue font-bold">3</span></td>
+              <td style="padding:12px 20px;font-weight:500;">深圳大学</td>
+              <td style="padding:12px 20px;">8</td>
+              <td style="padding:12px 20px;">1,620</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;">4</td>
+              <td style="padding:12px 20px;">广州大学</td>
+              <td style="padding:12px 20px;">6</td>
+              <td style="padding:12px 20px;">1,100</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;">5</td>
+              <td style="padding:12px 20px;">广东工业大学</td>
+              <td style="padding:12px 20px;">5</td>
+              <td style="padding:12px 20px;">980</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 最近操作日志 -->
+  <div class="card">
+    <div class="card-header">
+      <h3><i class="fa-solid fa-clock-rotate-left text-primary mr-2"></i>最近操作记录</h3>
+      <a href="tenants.html" class="btn btn-text btn-sm">查看全部 <i class="fa-solid fa-arrow-right ml-1"></i></a>
+    </div>
+    <div class="card-body p-0">
+      <table>
+        <thead>
+          <tr>
+            <th style="padding:10px 20px;">时间</th>
+            <th style="padding:10px 20px;">操作人</th>
+            <th style="padding:10px 20px;">操作类型</th>
+            <th style="padding:10px 20px;">操作详情</th>
+            <th style="padding:10px 20px;">IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:12px 20px;">2026-06-09 10:30:22</td>
+            <td style="padding:12px 20px;">管理员</td>
+            <td style="padding:12px 20px;"><span class="badge badge-green">创建</span></td>
+            <td style="padding:12px 20px;">创建学校「华南理工大学」</td>
+            <td style="padding:12px 20px;">192.168.1.100</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 20px;">2026-06-09 09:15:45</td>
+            <td style="padding:12px 20px;">管理员</td>
+            <td style="padding:12px 20px;"><span class="badge badge-orange">续费</span></td>
+            <td style="padding:12px 20px;">为「中山大学」续期至 2027-06-09</td>
+            <td style="padding:12px 20px;">192.168.1.100</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 20px;">2026-06-08 16:42:10</td>
+            <td style="padding:12px 20px;">管理员</td>
+            <td style="padding:12px 20px;"><span class="badge badge-red">重置密码</span></td>
+            <td style="padding:12px 20px;">重置「深圳大学」管理员密码</td>
+            <td style="padding:12px 20px;">192.168.1.100</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 20px;">2026-06-08 14:20:05</td>
+            <td style="padding:12px 20px;">管理员</td>
+            <td style="padding:12px 20px;"><span class="badge badge-blue">登录</span></td>
+            <td style="padding:12px 20px;">快捷登录「广州大学」管理后台</td>
+            <td style="padding:12px 20px;">192.168.1.100</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 模拟 toast
+  function showToast(msg, type) {
+    const el = document.createElement('div');
+    el.className = 'toast toast-' + type + ' show';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => { el.classList.remove('show'); el.remove(); }, 3000);
+  }
+  setTimeout(() => showToast('已刷新', 'success'), 500);
+</script>
+<script>
+  const REQUIREMENT_TEXT = `系统管理端 - 首页
+
+需求说明：
+1、有效账号：处于可用时间段内的账号；
+2、即将过期：离账号过期剩7天，开始进入即将过期状态；
+3、月度注册趋势：账号开通的操作时间；
+4、最近操作记录：暂时不做。
+`;
+</script>
+<script src="../shared/requirement.js"></script>
+</body>
+</html>
